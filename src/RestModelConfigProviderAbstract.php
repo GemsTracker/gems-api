@@ -7,12 +7,18 @@ use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
 use Gems\Middleware\SecurityHeadersMiddleware;
+use Gems\Util\RouteGroupTrait;
 use Mezzio\Csrf\CsrfMiddleware;
 use Mezzio\Flash\FlashMessageMiddleware;
 use Mezzio\Session\SessionMiddleware;
 
 abstract class RestModelConfigProviderAbstract
 {
+    use RouteGroupTrait;
+
+    public function __construct(protected string $pathPrefix = '/api')
+    {}
+
     /**
      * Get an array of default routing middleware for REST actions with a custom action instead of the default controller
      *
@@ -187,7 +193,9 @@ abstract class RestModelConfigProviderAbstract
     public function getRoutes(bool $includeModelRoutes=true): array
     {
         if ($includeModelRoutes) {
-            return $this->getModelRoutes();
+            $this->routeGroup([
+                'path' => $this->pathPrefix
+            ], $this->getModelRoutes());
         }
         return [];
     }
