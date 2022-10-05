@@ -70,7 +70,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     /**
      * @var ModelAbstract Gemstracker Model
      */
-    protected ?ModelAbstract $model;
+    protected ?ModelAbstract $model = null;
 
     protected DateTimeInterface|float $requestStart;
 
