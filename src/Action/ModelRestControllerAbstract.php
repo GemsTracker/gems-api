@@ -652,9 +652,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @param ServerRequestInterface $request
      * @param array $filter
      * @param array $sort
-     * @return array|null
+     * @return array
      */
-    public function getPaginationHeaders(ServerRequestInterface $request, array $filter=[], array $sort=[]): ?array
+    public function getPaginationHeaders(ServerRequestInterface $request, array $filter=[], array $sort=[]): array
     {
         $count = $this->model->getItemCount($filter, $sort);
 
@@ -673,7 +673,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $lastPage = ceil($count / $this->itemsPerPage);
 
             if ($page > $lastPage) {
-                return null;
+                return [];
             }
 
             $baseUrl = $request->getUri()
