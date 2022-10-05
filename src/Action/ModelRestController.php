@@ -3,6 +3,7 @@
 namespace Gems\Api\Action;
 
 use Gems\Api\Exception\ModelException;
+use MUtil\Model\ModelAbstract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -15,9 +16,9 @@ class ModelRestController extends ModelRestControllerAbstract
 
     protected ?string $modelName = null;
 
-    protected function createModel(): \MUtil_Model_ModelAbstract
+    protected function createModel(): ModelAbstract
     {
-        if ($this->model instanceof \MUtil_Model_ModelAbstract) {
+        if ($this->model instanceof ModelAbstract) {
             return $this->model;
         }
 
@@ -26,7 +27,7 @@ class ModelRestController extends ModelRestControllerAbstract
         }
 
         /**
-         * @var \MUtil_Model_ModelAbstract $model
+         * @var ModelAbstract $model
          */
         $model = $this->loader->create($this->modelName);
 
@@ -70,13 +71,13 @@ class ModelRestController extends ModelRestControllerAbstract
 
     /**
      * Set the name of the model you want to load
-     * @param string|\MUtil_Model_ModelAbstract namespaced classname, project loader classname or actual class of a model
+     * @param string|ModelAbstract namespaced classname, project loader classname or actual class of a model
      */
-    public function setModelName(\MUtil_Model_ModelAbstract|string $modelName): void
+    public function setModelName(ModelAbstract|string $modelName): void
     {
         if (is_string($modelName)) {
             $this->modelName = $modelName;
-        } elseif ($modelName instanceof \MUtil_Model_ModelAbstract) {
+        } elseif ($modelName instanceof ModelAbstract) {
             $this->model = $modelName;
         }
     }

@@ -30,6 +30,10 @@
     {
       "type": "git",
       "url": "https://github.com/MagnaFacta/zalt-loader.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/MagnaFacta/zalt-util.git"
     }
   ]
 }

@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Gems\Api\Event;
 
+use MUtil\Model\ModelAbstract;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class ModelEvent extends Event
 {
     /**
-     * @var \MUtil_Model_ModelAbstract
+     * @var ModelAbstract
      */
     protected $model;
 
-    public function __construct(\MUtil_Model_ModelAbstract $model)
+    public function __construct(ModelAbstract $model)
     {
         $this->model = $model;
     }

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Gems\Api\Model\Transformer;
 
+use MUtil\Model\ModelAbstract;
+use MUtil\Model\ModelTransformerAbstract;
+
 /**
  * Add created and changed by values from currentuser
  */
-class CreatedChangedByTransformer extends \MUtil_Model_ModelTransformerAbstract
+class CreatedChangedByTransformer extends ModelTransformerAbstract
 {
     protected int $currentUserId;
 
@@ -16,7 +19,7 @@ class CreatedChangedByTransformer extends \MUtil_Model_ModelTransformerAbstract
         $this->currentUserId = $currentUserId;
     }
 
-    public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row): array
+    public function transformRowBeforeSave(ModelAbstract $model, array $row): array
     {
         $saveTransformers = $model->getCol($model::SAVE_TRANSFORMER);
 

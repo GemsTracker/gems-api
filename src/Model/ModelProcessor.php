@@ -3,8 +3,12 @@
 
 namespace Gems\Api\Model;
 
+use DateTimeImmutable;
 use Gems\Api\Exception\ModelValidationException;
 use Laminas\Validator\ValidatorInterface;
+use MUtil\Model;
+use MUtil\Model\JoinModel;
+use MUtil\Model\ModelAbstract;
 use Psr\Log\LoggerInterface;
 use Zalt\Loader\ProjectOverloader;
 
@@ -12,13 +16,13 @@ class ModelProcessor
 {
     protected ProjectOverloader $loader;
 
-    protected \MUtil_Model_ModelAbstract $model;
+    protected ModelAbstract $model;
 
     protected int $userId;
 
     protected ?LoggerInterface $logger;
 
-    public function __construct(ProjectOverloader $loader, \MUtil_Model_ModelAbstract $model, $userId, $logger=null)
+    public function __construct(ProjectOverloader $loader, ModelAbstract $model, $userId, $logger=null)
     {
         $this->loader = $loader;
         $this->model = $model;
@@ -29,7 +33,7 @@ class ModelProcessor
     protected function addDefaults(array $row): array
     {
         $defaults = $this->model->loadNew();
-        if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getSaveTables')) {
+        if ($this->model instanceof JoinModel && method_exists($this->model, 'getSaveTables')) {
             $requiredColumns = [];
             $saveableTables = $this->model->getSaveTables();
             foreach($this->model->getCol('table') as $colName=>$table) {
@@ -118,7 +122,7 @@ class ModelProcessor
     public function getValidators(): array
     {
         if (!$this->validators) {
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getSaveTables')) {
+            if ($this->model instanceof JoinModel && method_exists($this->model, 'getSaveTables')) {
                 $saveableTables = $this->model->getSaveTables();
 
                 $multiValidators = [];
@@ -172,7 +176,7 @@ class ModelProcessor
             }
 
             $joinFields = [];
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getJoinFields')) {
+            if ($this->model instanceof JoinModel && method_exists($this->model, 'getJoinFields')) {
                 $joinFields = array_flip($this->model->getJoinFields());
             }
 
@@ -212,19 +216,19 @@ class ModelProcessor
 
                 if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1 && array_key_exists($columnName, $types)) {
                     switch ($types[$columnName]) {
-                        case \MUtil_Model::TYPE_STRING:
+                        case Model::TYPE_STRING:
                             //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
                             break;
 
-                        case \MUtil_Model::TYPE_NUMERIC:
+                        case Model::TYPE_NUMERIC:
                             $multiValidators[$columnName][] = $this->getValidator('Float');
                             break;
 
-                        case \MUtil_Model::TYPE_DATE:
+                        case Model::TYPE_DATE:
                             $multiValidators[$columnName][] = $this->getValidator('Date');
                             break;
 
-                        case \MUtil_Model::TYPE_DATETIME:
+                        case Model::TYPE_DATETIME:
                             $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => \Zend_Date::ISO_8601]);
                             break;
                     }
@@ -265,7 +269,7 @@ class ModelProcessor
                 continue;
             }
             $type = $this->model->get($columnName, 'type');
-            if ($type === \MUtil_Model::TYPE_DATETIME || $type === \MUtil_Model::TYPE_DATE) {
+            if ($type === Model::TYPE_DATETIME || $type === Model::TYPE_DATE) {
                 //if ($this->model->get($columnName, 'dateFormat') === null) {
                 //    $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);
                 //}
@@ -273,7 +277,7 @@ class ModelProcessor
                 if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
                     $value = substr($value, 0, 19);
                 }
-                $row[$columnName] = new \MUtil_Date($value, \MUtil_Date::ISO_8601);
+                $row[$columnName] = new DateTimeImmutable($value);
             }
 
         }

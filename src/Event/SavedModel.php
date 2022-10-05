@@ -32,12 +32,12 @@ class SavedModel extends ModelEvent
         }
         $diffValues = [];
         foreach($this->newData as $key=>$newValue) {
-            if ($newValue instanceof \MUtil_Date) {
-                $storageFormat = 'yyyy-MM-dd HH:mm:ss';
+            if ($newValue instanceof \DateTimeInterface) {
+                $storageFormat = 'Y-m-d H:i:s';
                 if ($this->model->has($key, 'storageFormat')) {
                     $storageFormat = $this->model->get($key, 'storageFormat');
                 }
-                $newValue = $newValue->toString($storageFormat);
+                $newValue = $newValue->format($storageFormat);
             }
             if (array_key_exists($key, $this->oldData) && $newValue === $this->oldData[$key]) {
                 continue;

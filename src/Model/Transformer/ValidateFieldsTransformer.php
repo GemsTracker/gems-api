@@ -8,13 +8,17 @@ namespace Gems\Api\Model\Transformer;
 
 use Gems\Api\Exception\ModelValidationException;
 use Laminas\Validator\ValidatorInterface;
+use MUtil\Model;
+use MUtil\Model\JoinModel;
+use MUtil\Model\ModelAbstract;
+use MUtil\Model\ModelTransformerAbstract;
 use Zalt\Loader\ProjectOverloader;
 
-class ValidateFieldsTransformer extends \MUtil_Model_ModelTransformerAbstract
+class ValidateFieldsTransformer extends ModelTransformerAbstract
 {
     protected ?string $idField = null;
 
-    protected \MUtil_Model_ModelAbstract $model;
+    protected ModelAbstract $model;
 
     protected ProjectOverloader $overLoader;
 
@@ -98,7 +102,7 @@ class ValidateFieldsTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function getValidators(): array
     {
         if (!$this->validators) {
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getSaveTables')) {
+            if ($this->model instanceof JoinModel && method_exists($this->model, 'getSaveTables')) {
                 $saveableTables = $this->model->getSaveTables();
 
                 $multiValidators = [];
@@ -154,7 +158,7 @@ class ValidateFieldsTransformer extends \MUtil_Model_ModelTransformerAbstract
             }
 
             $joinFields = [];
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getJoinFields')) {
+            if ($this->model instanceof JoinModel && method_exists($this->model, 'getJoinFields')) {
                 $joinFields = array_flip($this->model->getJoinFields());
             }
 
@@ -194,19 +198,19 @@ class ValidateFieldsTransformer extends \MUtil_Model_ModelTransformerAbstract
 
                 if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1 && array_key_exists($columnName, $types)) {
                     switch ($types[$columnName]) {
-                        case \MUtil_Model::TYPE_STRING:
+                        case Model::TYPE_STRING:
                             //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
                             break;
 
-                        case \MUtil_Model::TYPE_NUMERIC:
+                        case Model::TYPE_NUMERIC:
                             $multiValidators[$columnName][] = $this->getValidator('Float');
                             break;
 
-                        case \MUtil_Model::TYPE_DATE:
+                        case Model::TYPE_DATE:
                             $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => 'yyyy-MM-dd']);
                             break;
 
-                        case \MUtil_Model::TYPE_DATETIME:
+                        case Model::TYPE_DATETIME:
                             $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => 'yyyy-MM-dd HH:mm:ss']);
                             break;
                     }
@@ -219,7 +223,7 @@ class ValidateFieldsTransformer extends \MUtil_Model_ModelTransformerAbstract
         return $this->validators;
     }
 
-    public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row): array
+    public function transformRowBeforeSave(ModelAbstract $model, array $row): array
     {
         $this->model = $model;
         $rowValidators = $this->getValidators();

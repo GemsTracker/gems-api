@@ -14,6 +14,7 @@ use Gems\Api\Model\Transformer\CreatedChangedByTransformer;
 use Gems\Api\Model\Transformer\DateTransformer;
 use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
 use Mezzio\Router\Exception\InvalidArgumentException;
+use MUtil\Model\ModelAbstract;
 use MUtil\Model\Type\JsonData;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -67,9 +68,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected ProjectOverloader $loader;
 
     /**
-     * @var \MUtil_Model_ModelAbstract Gemstracker Model
+     * @var ModelAbstract Gemstracker Model
      */
-    protected ?\MUtil_Model_ModelAbstract $model;
+    protected ?ModelAbstract $model;
 
     protected DateTimeInterface|float $requestStart;
 
@@ -122,7 +123,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     protected function addCurrentUserToModel(): void
     {
-        \Gems_Model::setCurrentUserId($this->userId);
+        \Gems\Model::setCurrentUserId($this->userId);
     }
 
     /**
@@ -177,9 +178,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     /**
      * Create a Gemstracker model
      *
-     * @return \MUtil_Model_ModelAbstract
+     * @return ModelAbstract
      */
-    abstract protected function createModel(): \MUtil_Model_ModelAbstract;
+    abstract protected function createModel(): ModelAbstract;
 
     /**
      * Delete a row from the model
@@ -314,7 +315,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $this->apiNames;
     }
 
-    protected function getApiSubModelNames(\MUtil_Model_ModelAbstract $model): array
+    protected function getApiSubModelNames(ModelAbstract $model): array
     {
         $apiNames = $this->model->getCol('apiName');
 
@@ -771,8 +772,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                                 6 => 'child_model',
                                 default => 'no_value',
                             };
-                            if ($this->model->has($columnName, \MUtil_Model_ModelAbstract::SAVE_TRANSFORMER)) {
-                                $transformer = $this->model->get($columnName, \MUtil_Model_ModelAbstract::SAVE_TRANSFORMER);
+                            if ($this->model->has($columnName, ModelAbstract::SAVE_TRANSFORMER)) {
+                                $transformer = $this->model->get($columnName, ModelAbstract::SAVE_TRANSFORMER);
                                 if (is_array($transformer) && $transformer[0] instanceof JsonData) {
                                     $structure[$columnLabel][$attributeName] = 'json';
                                 }
@@ -1086,10 +1087,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $translatedRow[$colName][$key] = $this->translateList($subrow, $translations[$colName]);
                 }
                 continue;
-            }
-
-            if ($value instanceof \MUtil_Date) {
-                $value = $value->toString(\MUtil_Date::ISO_8601);
             }
 
             if ($value instanceof DateTimeInterface) {
