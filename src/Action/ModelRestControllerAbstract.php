@@ -77,7 +77,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     /**
      * @var array list of apiNames but key=>value reversed
      */
-    protected array $reverseApiNames;
+    protected ?array $reverseApiNames = null;
 
     /**
      * @var array list of column structure

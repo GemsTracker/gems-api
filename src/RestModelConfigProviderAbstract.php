@@ -3,6 +3,13 @@
 namespace Gems\Api;
 
 use Gems\Api\Action\ModelRestController;
+use Gems\Api\Middleware\ApiAuthenticationMiddleware;
+use Gems\Middleware\LegacyCurrentUserMiddleware;
+use Gems\Middleware\LocaleMiddleware;
+use Gems\Middleware\SecurityHeadersMiddleware;
+use Mezzio\Csrf\CsrfMiddleware;
+use Mezzio\Flash\FlashMessageMiddleware;
+use Mezzio\Session\SessionMiddleware;
 
 abstract class RestModelConfigProviderAbstract
 {
@@ -30,10 +37,15 @@ abstract class RestModelConfigProviderAbstract
     public function getMiddleware(): array
     {
         return [
-            /*LocaleMiddleware::class,
             SecurityHeadersMiddleware::class,
-            AuthorizeGemsAndOauthMiddleware::class,
-            ApiGateMiddleware::class,
+            SessionMiddleware::class,
+            FlashMessageMiddleware::class,
+            CsrfMiddleware::class,
+            LocaleMiddleware::class,
+            ApiAuthenticationMiddleware::class,
+            LegacyCurrentUserMiddleware::class,
+
+            /*ApiGateMiddleware::class,
             ApiPatientGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
             AccessLogMiddleware::class,*/
