@@ -193,7 +193,7 @@ abstract class RestModelConfigProviderAbstract
     public function getRoutes(bool $includeModelRoutes=true): array
     {
         if ($includeModelRoutes) {
-            $this->routeGroup([
+            return $this->routeGroup([
                 'path' => $this->pathPrefix
             ], $this->getModelRoutes());
         }
