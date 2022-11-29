@@ -19,10 +19,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ApiAuthenticationMiddleware implements MiddlewareInterface
 {
+    public const CURRENT_USER_ID = 'currentUserId';
+    public const CURRENT_USER_NAME = 'currentUserName';
+    public const CURRENT_USER_ORGANIZATION = 'currentUserOrganization';
+
     public function __construct(private ResourceServer $resourceServer,
         private AuthenticationServiceBuilder $authenticationServiceBuilder,
         private OtpMethodBuilder $otpMethodBuilder,
-        private readonly UserLoader $userLoader,
+        //private readonly UserLoader $userLoader,
     )
     {}
 
@@ -66,7 +70,10 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
 
             if (!$tfaService->requiresAuthentication($user, $request)) {
                 return $request->withAttribute(AuthenticationMiddleware::CURRENT_USER_ATTRIBUTE, $user)
-                    ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $authenticationService->getIdentity());
+                    ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $authenticationService->getIdentity())
+                    ->withAttribute(static::CURRENT_USER_ID, $user->getUserId())
+                    ->withAttribute(static::CURRENT_USER_NAME, $user->getLoginName())
+                    ->withAttribute(static::CURRENT_USER_ORGANIZATION, $user->getCurrentOrganizationId());
             }
         }
 
@@ -81,9 +88,13 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
             list($userId, $loginName, $loginOrganization) = explode('@', $oauthUserId);
 
             $identity = new GemsTrackerIdentity($loginName, $loginOrganization);
-            $user = $this->userLoader->getUser($loginName, $loginOrganization);
-            return $request->withAttribute(AuthenticationMiddleware::CURRENT_USER_ATTRIBUTE, $user)
-                ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $identity);
+            //$user = $this->userLoader->getUser($loginName, $loginOrganization);
+            return $request
+                //->withAttribute(AuthenticationMiddleware::CURRENT_USER_ATTRIBUTE, $user)
+                ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $identity)
+                ->withAttribute(static::CURRENT_USER_ID, $userId)
+                ->withAttribute(static::CURRENT_USER_NAME, $loginName)
+                ->withAttribute(static::CURRENT_USER_ORGANIZATION, $loginOrganization);
         }
 
         throw OAuthServerException::accessDenied('No valid access token');
