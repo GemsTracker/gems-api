@@ -2,13 +2,14 @@
 
 namespace Gems\Api\Action;
 
+use Gems\Api\Middleware\ApiAuthenticationMiddleware;
+use Mezzio\Router\RouteResult;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\Response\EmptyResponse;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-abstract class RestControllerAbstract implements MiddlewareInterface
+abstract class RestControllerAbstract implements RequestHandlerInterface
 {
     /**
      * @var string Current Method
@@ -21,7 +22,7 @@ abstract class RestControllerAbstract implements MiddlewareInterface
     protected array $routeOptions = [];
 
     /**
-     * @var string|null Current User ID
+     * @var int|null Current User ID
      */
     protected ?int $userId;
 
@@ -31,23 +32,23 @@ abstract class RestControllerAbstract implements MiddlewareInterface
     protected ?string $userName;
 
     /**
-     * @var string|null Current user base organization
+     * @var int|null Current user base organization
      */
     protected ?int $userOrganization;
 
     protected function initUserAtributesFromRequest(ServerRequestInterface $request): void
     {
-        $this->userId = $request->getAttribute('user_id');
-        $this->userName = $request->getAttribute('user_name');
-        $this->userOrganization = $request->getAttribute('user_organization');
+        $this->userId = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ID);
+        $this->userName = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_NAME);
+        $this->userOrganization = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ORGANIZATION);
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $method = strtolower($request->getMethod());
         $path = $request->getUri()->getPath();
 
-        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
+        $routeResult = $request->getAttribute(RouteResult::class);
         $route = $routeResult->getMatchedRoute();
         $this->routeOptions = $route->getOptions();
 
@@ -60,15 +61,15 @@ abstract class RestControllerAbstract implements MiddlewareInterface
 
         $this->initUserAtributesFromRequest($request);
 
-        if (($method == 'get') && (substr($path, -10) === '/structure')) {
+        if (($method == 'get') && (str_ends_with($path, '/structure'))) {
             if (method_exists($this, 'structure')) {
-                return $this->structure($request, $handler);
+                return $this->structure();
             }
         } elseif (method_exists($this, $method)) {
             $this->method = $method;
 
 
-            return $this->$method($request, $handler);
+            return $this->$method($request);
         }
 
         return new EmptyResponse(501);

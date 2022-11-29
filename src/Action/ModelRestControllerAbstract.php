@@ -936,7 +936,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @return ResponseInterface
      * @throws Exception
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->setRequestStart();
         $this->initUserAtributesFromRequest($request);
@@ -947,7 +947,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $this->model->applyApiSettings();
         }
 
-        return parent::process($request, $handler);
+        return parent::handle($request);
     }
 
     /**
