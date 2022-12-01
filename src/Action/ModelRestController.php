@@ -3,6 +3,7 @@
 namespace Gems\Api\Action;
 
 use Gems\Api\Exception\ModelException;
+use Mezzio\Router\RouteResult;
 use MUtil\Model\ModelAbstract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,9 +43,9 @@ class ModelRestController extends ModelRestControllerAbstract
         return $model;
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
+        $routeResult = $request->getAttribute(RouteResult::class);
         $route = $routeResult->getMatchedRoute();
         if ($route) {
             $options = $route->getOptions();
@@ -66,7 +67,7 @@ class ModelRestController extends ModelRestControllerAbstract
             }
         }
 
-        return parent::process($request, $handler);
+        return parent::handle($request);
     }
 
     /**
