@@ -23,7 +23,7 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
     public const CURRENT_USER_NAME = 'currentUserName';
     public const CURRENT_USER_ORGANIZATION = 'currentUserOrganization';
 
-    public function __construct(private ResourceServer $resourceServer,
+    public function __construct(
         private AuthenticationServiceBuilder $authenticationServiceBuilder,
         private OtpMethodBuilder $otpMethodBuilder,
         //private readonly UserLoader $userLoader,
@@ -51,9 +51,9 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
 
     protected function validateAuthentication(ServerRequestInterface $request): ServerRequestInterface
     {
-        if ($request->hasHeader('authorization') !== false) {
+        /*if ($request->hasHeader('authorization') !== false) {
             return $this->validateOauth2Authentication($request);
-        }
+        }*/
 
         return $this->validateSessionAuthentication($request);
     }
@@ -78,25 +78,5 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
         }
 
         throw OAuthServerException::accessDenied('user not authenticated');
-    }
-
-    protected function validateOauth2Authentication(ServerRequestInterface $request)
-    {
-        $request = $this->resourceServer->validateAuthenticatedRequest($request);
-        if ($oauthUserId = $request->getAttribute('oauth_user_id')) {
-
-            list($userId, $loginName, $loginOrganization) = explode('@', $oauthUserId);
-
-            $identity = new GemsTrackerIdentity($loginName, $loginOrganization);
-            //$user = $this->userLoader->getUser($loginName, $loginOrganization);
-            return $request
-                //->withAttribute(AuthenticationMiddleware::CURRENT_USER_ATTRIBUTE, $user)
-                ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $identity)
-                ->withAttribute(static::CURRENT_USER_ID, $userId)
-                ->withAttribute(static::CURRENT_USER_NAME, $loginName)
-                ->withAttribute(static::CURRENT_USER_ORGANIZATION, $loginOrganization);
-        }
-
-        throw OAuthServerException::accessDenied('No valid access token');
     }
 }
