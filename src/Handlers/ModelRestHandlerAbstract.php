@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Api\Action;
+namespace Gems\Api\Handlers;
 
 use Gems\AccessLog\AccesslogRepository;
 use Gems\Api\Event\SavedModel;
@@ -28,7 +28,7 @@ use Mezzio\Helper\UrlHelper;
 use Mezzio\Router\RouteResult;
 use DateTimeInterface;
 
-abstract class ModelRestControllerAbstract extends RestControllerAbstract
+abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 {
     /**
      * @var AccesslogRepository

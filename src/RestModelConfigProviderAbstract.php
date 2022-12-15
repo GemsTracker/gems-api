@@ -2,7 +2,7 @@
 
 namespace Gems\Api;
 
-use Gems\Api\Action\ModelRestController;
+use Gems\Api\Handlers\ModelRestHandler;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
@@ -55,7 +55,7 @@ abstract class RestModelConfigProviderAbstract
             ApiPatientGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
             AccessLogMiddleware::class,*/
-            ModelRestController::class,
+            ModelRestHandler::class,
         ];
     }
 

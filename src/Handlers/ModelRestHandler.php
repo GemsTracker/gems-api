@@ -1,6 +1,6 @@
 <?php
 
-namespace Gems\Api\Action;
+namespace Gems\Api\Handlers;
 
 use Gems\Api\Exception\ModelException;
 use Mezzio\Router\RouteResult;
@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class ModelRestController extends ModelRestControllerAbstract
+class ModelRestHandler extends ModelRestHandlerAbstract
 {
     protected ?array $applySettings = null;
 

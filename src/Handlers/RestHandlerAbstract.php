@@ -1,6 +1,6 @@
 <?php
 
-namespace Gems\Api\Action;
+namespace Gems\Api\Handlers;
 
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Mezzio\Router\RouteResult;
@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Server\RequestHandlerInterface;
 
-abstract class RestControllerAbstract implements RequestHandlerInterface
+abstract class RestHandlerAbstract implements RequestHandlerInterface
 {
     /**
      * @var string Current Method
