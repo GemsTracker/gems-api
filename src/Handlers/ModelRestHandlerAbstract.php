@@ -55,7 +55,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     /**
      * @var string Fieldname of model that identifies a row with a unique ID
      */
-    protected string $idField;
+    protected ?string $idField = null;
 
     /**
      * @var int number of items per page for pagination
@@ -82,7 +82,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     /**
      * @var array list of column structure
      */
-    protected array $structure;
+    protected ?array $structure = null;
 
     /**
      * @var array list of methods supported by this current controller
@@ -719,10 +719,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * @return array
      * @throws \Zend_Date_Exception
      */
-    public function getStructure(): array
+    public function getStructure(ModelAbstract $model): array
     {
         if (!$this->structure) {
-            $columns = $this->model->getItemsOrdered();
+            $columns = $model->getItemsOrdered();
 
             $translations = $this->getApiNames();
 
@@ -800,10 +800,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
                 }
             }
 
-            $usedColumns = array_keys($structure);
+            $usedColumns = array_flip(array_keys($structure));
 
             $columns = $this->filterColumns($usedColumns, false, false);
-            $structure = array_intersect_key($structure, array_flip($columns));
+            $structure = array_intersect_key($structure, $columns);
 
             $this->structure = $structure;
         }
@@ -1059,7 +1059,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function structure(): JsonResponse
     {
-        $structure = $this->getStructure();
+        $structure = $this->getStructure($this->model);
         return new JsonResponse($structure);
     }
 

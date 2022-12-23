@@ -14,7 +14,7 @@ class RouteOptionsModelFilter
      * @param bool $useKeys Use keys or values in the filter of the row
      * @return array Filtered array
      */
-    public static function filterColumns($row, $routeOptions, $save=false, $useKeys=true)
+    public static function filterColumns(array $row, array $routeOptions, bool $save=false, bool $useKeys=true): array
     {
         $flag = ARRAY_FILTER_USE_KEY;
         if ($useKeys === false) {
@@ -24,35 +24,62 @@ class RouteOptionsModelFilter
         if ($save && isset($routeOptions['allowed_save_fields'])) {
             $allowedSaveFields = $routeOptions['allowed_save_fields'];
 
-            $row = array_filter($row, function ($key) use ($allowedSaveFields) {
-                return in_array($key, $allowedSaveFields);
-            }, $flag);
+            $row = static::filterAllowedFields($row, $allowedSaveFields);
         } elseif (isset($routeOptions['allowed_fields'])) {
             $allowedFields = $routeOptions['allowed_fields'];
 
-            $row = array_filter($row, function ($key) use ($allowedFields) {
-                return in_array($key, $allowedFields);
-            }, $flag);
+            $row = static::filterAllowedFields($row, $allowedFields);
         }
 
         if (isset($routeOptions['disallowed_fields'])) {
             $disallowedFields = $routeOptions['disallowed_fields'];
 
-            $row = array_filter($row, function ($key) use ($disallowedFields) {
-                return !in_array($key, $disallowedFields);
-            }, $flag);
-
+            $row = static::filterDisallowedFields($row, $disallowedFields);
         }
 
         if ($save && isset($routeOptions['readonly_fields'])) {
             $readonlyFields = $routeOptions['readonly_fields'];
 
-            $row = array_filter($row, function ($key) use ($readonlyFields) {
-                return !in_array($key, $readonlyFields);
-            }, $flag);
-
+            $row = static::filterDisallowedFields($row, $disallowedFields);
         }
 
         return $row;
+    }
+
+    protected static function filterAllowedFields(array $row, array $fields): array
+    {
+        $filteredRow = [];
+        foreach($row as $key=>$value) {
+            if (isset($fields[$key]) && is_array($value)) {
+                foreach($row[$key] as $index=>$subRow) {
+                    if (is_array($subRow)) {
+                        $filteredRow[$key][$index] = static::filterAllowedFields($subRow, $fields[$key]);
+                    }
+                }
+            }
+            if (in_array($key, $fields)) {
+                $filteredRow[$key] = $value;
+            }
+        }
+
+        return $filteredRow;
+    }
+
+    protected static function filterDisallowedFields(array $row, array $fields): array
+    {
+        foreach($row as $key=>$value) {
+            if (isset($fields[$key]) && is_array($value)) {
+                foreach($row[$key] as $index=>$subRow) {
+                    if (is_array($subRow)) {
+                        $filteredRow[$key][$index] = static::filterDisallowedFields($subRow, $fields[$key]);
+                    }
+                }
+            }
+            if (!in_array($key, $fields)) {
+                unset($row[$key]);
+            }
+        }
+
+        return $filteredRow;
     }
 }
