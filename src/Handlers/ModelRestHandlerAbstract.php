@@ -9,10 +9,13 @@ use Gems\Api\Event\SaveFailedModel;
 use Gems\Api\Event\SaveModel;
 use Gems\Api\Exception\ModelException;
 use Gems\Api\Exception\ModelValidationException;
+use Gems\Api\Model\ModelApiHelper;
 use Gems\Api\Model\RouteOptionsModelFilter;
 use Gems\Api\Model\Transformer\CreatedChangedByTransformer;
 use Gems\Api\Model\Transformer\DateTransformer;
 use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
+use Gems\Model;
+use Laminas\Db\Adapter\Adapter;
 use Mezzio\Router\Exception\InvalidArgumentException;
 use MUtil\Model\ModelAbstract;
 use MUtil\Model\Type\JsonData;
@@ -27,33 +30,17 @@ use Exception;
 use Mezzio\Helper\UrlHelper;
 use Mezzio\Router\RouteResult;
 use DateTimeInterface;
+use Zalt\Model\MetaModelInterface;
 
 abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 {
-    /**
-     * @var AccesslogRepository
-     */
-    protected AccesslogRepository $accesslogRepository;
-
     /**
      * @var array List of allowed content types as input for write methods
      */
     protected array $allowedContentTypes = ['application/json'];
 
     /**
-     * @var ?array list of translated colnames for the api
-     */
-    protected ?array $apiNames = null;
-
-    /**
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected \Zend_Db_Adapter_Abstract $db1;
-
-    protected EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var string Fieldname of model that identifies a row with a unique ID
+     * @var string|null Fieldname of model that identifies a row with a unique ID
      */
     protected ?string $idField = null;
 
@@ -63,24 +50,16 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     protected int $itemsPerPage = 25;
 
     /**
-     * @var ProjectOverloader
+     * @var ModelAbstract|null Gemstracker Model
      */
-    protected ProjectOverloader $loader;
+    protected ?MetaModelInterface $model = null;
 
-    /**
-     * @var ModelAbstract Gemstracker Model
-     */
-    protected ?ModelAbstract $model = null;
+    protected ModelApiHelper $modelApiHelper;
 
     protected DateTimeInterface|float $requestStart;
 
     /**
-     * @var array list of apiNames but key=>value reversed
-     */
-    protected ?array $reverseApiNames = null;
-
-    /**
-     * @var array list of column structure
+     * @var array|null list of column structure
      */
     protected ?array $structure = null;
 
@@ -97,33 +76,28 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     ];
 
     /**
-     * @var UrlHelper
-     */
-    protected UrlHelper $urlHelper;
-
-    /**
      *
      * RestControllerAbstract constructor.
      * @param EventDispatcherInterface $eventDispatcher
      * @param AccesslogRepository $accesslogRepository
      * @param ProjectOverloader $loader
      * @param UrlHelper $urlHelper
-     * @param \Zend_Db_Adapter_Abstract $LegacyDb Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
+     * @param Adapter $db
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, \Zend_Db_Adapter_Abstract $LegacyDb)
+    public function __construct(
+        protected EventDispatcherInterface $eventDispatcher,
+        protected AccesslogRepository $accesslogRepository,
+        protected ProjectOverloader $loader,
+        protected UrlHelper $urlHelper,
+        protected Adapter $db
+    )
     {
-        $this->accesslogRepository = $accesslogRepository;
-        $this->loader = $loader;
-
-        $this->urlHelper = $urlHelper;
-        $this->db1 = $LegacyDb;
-
-        $this->eventDispatcher = $eventDispatcher;
+        $this->modelApiHelper = new ModelApiHelper();
     }
 
     protected function addCurrentUserToModel(): void
     {
-        \Gems\Model::setCurrentUserId($this->userId);
+        Model::setCurrentUserId($this->userId);
     }
 
     /**
@@ -252,20 +226,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         return RouteOptionsModelFilter::filterColumns($row, $filterOptions, $save, $useKeys);
     }
 
-    protected function flipMultiArray(array $array): array
-    {
-        $flipped = [];
-        foreach($array as $key=>$value)
-        {
-            if (is_array($value)) {
-                $flipped[$key] = $this->flipMultiArray($value);
-            } else {
-                $flipped[$value] = $key;
-            }
-        }
-        return $flipped;
-    }
-
     /**
      * Get one or multiple rows from the model
      *
@@ -291,39 +251,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     protected function getAllowedFilterFields(): array
     {
         return $this->model->getItemNames();
-    }
-
-    /**
-     * Get the api column names translations if they are set
-     *
-     * @param bool $reverse return the reversed translations
-     * @return array
-     */
-    protected function getApiNames(bool $reverse=false): array
-    {
-        if (!$this->apiNames) {
-            $this->apiNames = $this->getApiSubModelNames($this->model);
-        }
-
-        if ($reverse) {
-            if (!$this->reverseApiNames) {
-                $this->reverseApiNames = $this->flipMultiArray($this->apiNames);
-            }
-            return $this->reverseApiNames;
-        }
-
-        return $this->apiNames;
-    }
-
-    protected function getApiSubModelNames(ModelAbstract $model): array
-    {
-        $apiNames = $this->model->getCol('apiName');
-
-        $subModels = $model->getCol('model');
-        foreach($subModels as $subModelName=>$subModel) {
-            $apiNames[$subModelName] = $this->getApiSubModelNames($subModel);
-        }
-        return $apiNames;
     }
 
     /**
@@ -389,7 +316,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $idField = [$idField];
         }
 
-        $apiNames = $this->getApiNames(true);
+        $apiNames = $this->modelApiHelper->getApiNames($this->model, true);
 
         $filter = [];
         foreach($idField as $key=>$singleField) {
@@ -414,9 +341,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         $order = $this->getListOrder($request);
         $paginatedFilters = $this->getListPagination($request, $filters);
         $headers = $this->getPaginationHeaders($request, $filters);
-        if ($headers === false) {
-            return new EmptyResponse(204);
-        }
 
         $rows = $this->model->load($paginatedFilters, $order);
 
@@ -451,7 +375,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $allowedFilterFields = $this->getAllowedFilterFields();
 
-        $translations = $this->getApiNames(true);
+        $translations = $this->modelApiHelper->getApiNames($this->model, true);
 
         $filters = [];
 
@@ -471,7 +395,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
                 $organizationFilter = [];
                 foreach($organizationIds as $organizationId) {
-                    $organizationFilter[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $organizationId . $separator . '%');
+                    if (is_int($organizationId)) {
+
+                        $organizationFilter[] = "$field LIKE %" . $separator . $organizationId . $separator . "%";
+                    }
                 }
                 if (!empty($organizationFilter)) {
                     $filters[] = '(' . join(' OR ', $organizationFilter) . ')';
@@ -503,7 +430,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
                                     $secondValue = ($secondValue == (int)$secondValue) ? (int)$secondValue : (float)$secondValue;
                                 }
                                 if ($firstValue == 'LIKE' || $firstValue == 'NOT LIKE') {
-                                    $secondValue = $this->db1->quote($secondValue);
+                                    $secondValue = $this->db->getPlatform()->quoteValue($secondValue);
                                 }
                                 $filters[] = $colName . ' ' . $firstValue . ' ' . $secondValue;
                                 break;
@@ -548,7 +475,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $orderParams = explode(',', $params['order']);
 
             $order = [];
-            $translations = $this->getApiNames(true);
+            $translations = $this->modelApiHelper->getApiNames($this->model, true);
 
             foreach($orderParams as $orderParam) {
                 $sort = false;
@@ -633,7 +560,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
             $row = $this->model->loadFirst($filter);
             $this->logRequest($request, $row);
-            if (is_array($row)) {
+            if (empty($row)) {
                 $translatedRow = $this->translateRow($row);
                 $filteredRow = $this->filterColumns($translatedRow);
                 return new JsonResponse($filteredRow);
@@ -724,7 +651,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         if (!$this->structure) {
             $columns = $model->getItemsOrdered();
 
-            $translations = $this->getApiNames();
+            $translations = $this->modelApiHelper->getApiNames($this->model);
 
             $structureAttributes = [
                 'label',
@@ -1072,7 +999,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function translateRow(array $row, bool $reversed=false): array
     {
-        $translations = $this->getApiNames($reversed);
+        $translations = $this->modelApiHelper->getApiNames($this->model, $reversed);
 
         return $this->translateList($row, $translations);
     }
