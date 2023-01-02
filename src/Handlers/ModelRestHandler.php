@@ -8,10 +8,13 @@ use MUtil\Model\ModelAbstract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Zalt\Loader\DependencyResolver\ConstructorDependencyResolver;
 
 class ModelRestHandler extends ModelRestHandlerAbstract
 {
     protected ?array $applySettings = null;
+
+    protected bool $constructor = false;
 
     protected int $itemsPerPage = 5;
 
@@ -27,10 +30,21 @@ class ModelRestHandler extends ModelRestHandlerAbstract
             throw new ModelException('No model or model name set');
         }
 
-        /**
-         * @var ModelAbstract $model
-         */
-        $model = $this->loader->create($this->modelName);
+        if ($this->constructor) {
+            $loader = clone $this->loader;
+            $loader->setDependencyResolver(new ConstructorDependencyResolver());
+            /**
+             * @var ModelAbstract $model
+             */
+            $model = $loader->create($this->modelName);
+        } else {
+            /**
+             * @var ModelAbstract $model
+             */
+            $model = $this->loader->create($this->modelName);
+        }
+
+
 
         if ($this->applySettings) {
             foreach($this->applySettings as $methodName) {
@@ -57,6 +71,10 @@ class ModelRestHandler extends ModelRestHandlerAbstract
                         $options['applySettings'] = [$options['applySettings']];
                     }
                     $this->applySettings = $options['applySettings'];
+                }
+
+                if (isset($options['constructor']) && $options['constructor'] === true) {
+                    $this->constructor = true;
                 }
             }
             if (isset($options['itemsPerPage'])) {
