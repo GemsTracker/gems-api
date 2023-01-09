@@ -4,7 +4,6 @@ namespace Gems\Api\Model;
 
 use MUtil\Model\ModelAbstract;
 use MUtil\Model\Type\JsonData;
-use Zalt\Model\MetaModel;
 use Zalt\Model\MetaModelInterface;
 
 class ModelApiHelper
@@ -203,3 +202,4 @@ class ModelApiHelper
         return $this->structureAttributes;
     }
 }
+
