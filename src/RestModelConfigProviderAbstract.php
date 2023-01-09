@@ -29,9 +29,9 @@ abstract class RestModelConfigProviderAbstract
     {
         return [
             'routes' => $this->routeGroup([
-                    'path' => $this->pathPrefix,
-                    'middleware' => $this->getMiddleware(),
-                ],
+                'path' => $this->pathPrefix,
+                'middleware' => $this->getMiddleware(),
+            ],
                 $this->getRoutes()
             ),
         ];
@@ -71,6 +71,35 @@ abstract class RestModelConfigProviderAbstract
             LegacyCurrentUserMiddleware::class,
         ];
     }
+
+    protected function createRoute(
+        string $name,
+        string $path,
+        string $handler,
+        array $allowedMethods = ['GET'],
+        ?array $middleware = null,
+        ?array $options = null,
+    ): array
+    {
+        if ($middleware !== null) {
+            $middleware[] = $handler;
+            $handler = $middleware;
+        }
+
+        $route = [
+            'name' => $name,
+            'path' => $path,
+            'middleware' => $handler,
+            'allowed_methods' => $allowedMethods,
+        ];
+
+        if ($options !== null) {
+            $route['options'] = $options;
+        }
+
+        return [$route];
+    }
+
 
     protected function createModelRoute(
         string $endpoint,
