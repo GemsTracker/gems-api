@@ -16,8 +16,27 @@ abstract class RestModelConfigProviderAbstract
 {
     use RouteGroupTrait;
 
+    protected string $defaultHandler = ModelRestHandler::class;
+
+    protected string $defaultIdField = 'id';
+
+    protected string $defaultIdRegex = '\d+';
+
     public function __construct(protected string $pathPrefix = '/api')
     {}
+
+    public function __invoke()
+    {
+        return [
+            'routes' => $this->routeGroup([
+                    'path' => $this->pathPrefix,
+                    'middleware' => $this->getMiddleware(),
+                ],
+                $this->getRoutes()
+            ),
+        ];
+    }
+
 
     /**
      * Get an array of default routing middleware for REST actions with a custom action instead of the default controller
@@ -50,13 +69,129 @@ abstract class RestModelConfigProviderAbstract
             LocaleMiddleware::class,
             ApiAuthenticationMiddleware::class,
             LegacyCurrentUserMiddleware::class,
-
-            /*ApiGateMiddleware::class,
-            ApiPatientGateMiddleware::class,
-            ApiOrganizationGateMiddleware::class,
-            AccessLogMiddleware::class,*/
-            ModelRestHandler::class,
         ];
+    }
+
+    protected function createModelRoute(
+        string $endpoint,
+        string $model,
+        ?bool $constructor = true,
+        ?string $handler = null,
+        ?string $idField = null,
+        ?string $idRegex = null,
+        ?array $methods = null,
+        ?string $privilege = null,
+        ?array $allowedFields = null,
+        ?array $allowedSaveFields = null,
+        string|array|null $patientIdField = null,
+        ?string $respondentIdField = null,
+        ?array $multiOranizationField = null,
+        ?array $options = null,
+    ): array
+    {
+        if ($idField === null) {
+            $idField = $this->defaultIdField;
+        }
+        if ($idRegex === null) {
+            $idRegex = $this->defaultIdRegex;
+        }
+        if ($handler === null) {
+            $handler = $this->defaultHandler;
+        }
+        if ($privilege === null) {
+            $privilege = "pr.api.$endpoint";
+        }
+
+        $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
+        if (is_array($idField) && count($idField) > 1) {
+            $routeParameters = '';
+            foreach($idField as $key=>$field) {
+                $routeParameters .= '/{'.$field.':'.$idRegex[$key].'}';
+            }
+        }
+
+        // func_get_args() does not return parameter names
+        $settings = array_filter([
+            'endpoint' => $endpoint,
+            'model' => $model,
+            'constructor' => $constructor,
+            'handler' => $handler,
+            'idField' => $idField,
+            'idRegex' => $idRegex,
+            'methods' => $methods,
+            'privilege' => $privilege,
+            'allowedFields' => $allowedFields,
+            'allowedSaveFields' => $allowedSaveFields,
+            'patientIdField' => $patientIdField,
+            'respondentIdField' => $respondentIdField,
+            'multiOranizationField' => $multiOranizationField,
+        ]);
+        if ($options !== null) {
+            $settings = array_merge($settings, $options);
+        }
+
+        $routes = [];
+
+        if (!empty($methods)) {
+            $name = 'api.' . $endpoint . '.structure';
+            $routes[$name] = [
+                'name' => $name,
+                'path' => '/' . $endpoint . '/structure',
+                'middleware' => $handler,
+                'options' => $settings,
+                'allowed_methods' => ['GET']
+            ];
+        }
+
+        if (in_array('GET', $methods)) {
+            $name = 'api.' . $endpoint . '.get';
+            $routes[$name] = [
+                'name' => $name,
+                'path' => '/' . $endpoint . '['.$routeParameters.']',
+                'middleware' => $handler,
+                'options' => $settings,
+                'allowed_methods' => ['GET']
+            ];
+        }
+
+        $defaultPathMethods = ['OPTIONS'];
+        if (in_array('POST', $methods)) {
+            $defaultPathMethods[] = 'POST';
+        }
+
+        $name = 'api.' . $endpoint;
+        $routes[$name] = [
+            'name' => $name,
+            'path' => '/' . $endpoint,
+            'middleware' => $handler,
+            'options' => $settings,
+            'allowed_methods' => $defaultPathMethods,
+        ];
+
+        $fixedRouteMethods = [];
+
+        if (in_array('PATCH', $methods)) {
+            $fixedRouteMethods[] = 'PATCH';
+        }
+        if (in_array('PUT', $methods)) {
+            $fixedRouteMethods[] = 'PUT';
+        }
+        if (in_array('DELETE', $methods)) {
+            $fixedRouteMethods[] = 'DELETE';
+        }
+
+        $name = 'api.' . $endpoint . '.fixed';
+        if (!empty($fixedRouteMethods)) {
+            $routes[$name] = [
+                'name' => $name,
+                'path' => '/' . $endpoint . $routeParameters,
+                'middleware' => $handler,
+                'options' => $settings,
+                'allowed_methods' => $fixedRouteMethods,
+            ];
+        }
+
+        return $routes;
     }
 
     /**
@@ -71,87 +206,8 @@ abstract class RestModelConfigProviderAbstract
         $routes = [];
 
         foreach($restModels as $endpoint=>$settings) {
-
-            $methods = array_flip($settings['methods']);
-            $idField = 'id';
-            $idRegex = '\d+';
-
-            $middleware = $this->getMiddleware();
-            if (isset($settings['customAction'])) {
-                $middleware = $this->getCustomActionMiddleware($settings['customAction']);
-            }
-
-            if (isset($settings['idFieldRegex'])) {
-                $idRegex = $settings['idFieldRegex'];
-            }
-
-            if (isset($settings['idField'])) {
-                $idField = $settings['idField'];
-            }
-
-            if (is_array($idField) && count($idField) > 1) {
-                $routeParameters = '';
-                foreach($idField as $key=>$field) {
-                    $routeParameters .= '/{'.$field.':'.$idRegex[$key].'}';
-                }
-            } else {
-                $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
-            }
-
-            if (!empty($methods)) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.structure',
-                    'path' => '/' . $endpoint . '/structure',
-                    'middleware' => $middleware,
-                    'options' => $settings,
-                    'allowed_methods' => ['GET']
-                ];
-            }
-
-            if (isset($methods['GET'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.get',
-                    'path' => '/' . $endpoint . '['.$routeParameters.']',
-                    'middleware' => $middleware,
-                    'options' => $settings,
-                    'allowed_methods' => ['GET']
-                ];
-            }
-
-            $defaultPathMethods = ['OPTIONS'];
-            if (isset($methods['POST'])) {
-                $defaultPathMethods[] = 'POST';
-            }
-
-            $routes[] = [
-                'name' => 'api.' . $endpoint,
-                'path' => '/' . $endpoint,
-                'middleware' => $middleware,
-                'options' => $settings,
-                'allowed_methods' => $defaultPathMethods,
-            ];
-
-            $fixedRouteMethods = [];
-
-            if (isset($methods['PATCH'])) {
-                $fixedRouteMethods[] = 'PATCH';
-            }
-            if (isset($methods['PUT'])) {
-                $fixedRouteMethods[] = 'PUT';
-            }
-            if (isset($methods['DELETE'])) {
-                $fixedRouteMethods[] = 'DELETE';
-            }
-
-            if (!empty($fixedRouteMethods)) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.fixed',
-                    'path' => '/' . $endpoint . $routeParameters,
-                    'middleware' => $middleware,
-                    'options' => $settings,
-                    'allowed_methods' => $fixedRouteMethods,
-                ];
-            }
+            $settings['endpoint'] = $endpoint;
+            $routes = array_merge($routes, $this->createModelRoute(...$settings));
         }
 
         return $routes;
@@ -182,7 +238,10 @@ abstract class RestModelConfigProviderAbstract
      *
      * @return array
      */
-    abstract public function getRestModels(): array;
+    public function getRestModels(): array
+    {
+        return [];
+    }
 
     /**
      * Get all Routed including model routes. Add your projects routes in this function of the configProvider of your project.
@@ -190,13 +249,8 @@ abstract class RestModelConfigProviderAbstract
      * @param bool $includeModelRoutes
      * @return array
      */
-    public function getRoutes(bool $includeModelRoutes=true): array
+    public function getRoutes(): array
     {
-        if ($includeModelRoutes) {
-            return $this->routeGroup([
-                'path' => $this->pathPrefix
-            ], $this->getModelRoutes());
-        }
-        return [];
+        return $this->getModelRoutes();
     }
 }
