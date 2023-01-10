@@ -21,24 +21,24 @@ class RouteOptionsModelFilter
             $flag = ARRAY_FILTER_USE_BOTH;
         }
 
-        if ($save && isset($routeOptions['allowed_save_fields'])) {
-            $allowedSaveFields = $routeOptions['allowed_save_fields'];
+        if ($save && isset($routeOptions['allowedSaveFields'])) {
+            $allowedSaveFields = $routeOptions['allowedSaveFields'];
 
             $row = static::filterAllowedFields($row, $allowedSaveFields);
-        } elseif (isset($routeOptions['allowed_fields'])) {
-            $allowedFields = $routeOptions['allowed_fields'];
+        } elseif (isset($routeOptions['allowedFields'])) {
+            $allowedFields = $routeOptions['allowedFields'];
 
             $row = static::filterAllowedFields($row, $allowedFields);
         }
 
-        if (isset($routeOptions['disallowed_fields'])) {
-            $disallowedFields = $routeOptions['disallowed_fields'];
+        if (isset($routeOptions['disallowedFields'])) {
+            $disallowedFields = $routeOptions['disallowedFields'];
 
             $row = static::filterDisallowedFields($row, $disallowedFields);
         }
 
-        if ($save && isset($routeOptions['readonly_fields'])) {
-            $readonlyFields = $routeOptions['readonly_fields'];
+        if ($save && isset($routeOptions['readonlyFields'])) {
+            $readonlyFields = $routeOptions['readonlyFields'];
 
             $row = static::filterDisallowedFields($row, $disallowedFields);
         }
