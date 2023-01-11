@@ -59,7 +59,7 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
      * @return object
      * @throws \Zalt\Loader\Exception\LoadException
      */
-    public function getValidator(string|ValidatorInterface $validator, array $options = null): ValidatorInterface
+    public function getValidator(string|ValidatorInterface $validator, array $options = null)
     {
         if ($validator instanceof ValidatorInterface) {
             return $validator;
