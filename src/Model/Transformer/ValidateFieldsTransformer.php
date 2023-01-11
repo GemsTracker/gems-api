@@ -10,15 +10,15 @@ use Gems\Api\Exception\ModelValidationException;
 use Laminas\Validator\ValidatorInterface;
 use MUtil\Model;
 use MUtil\Model\JoinModel;
-use MUtil\Model\ModelAbstract;
 use MUtil\Model\ModelTransformerAbstract;
 use Zalt\Loader\ProjectOverloader;
+use Zalt\Model\MetaModelInterface;
 
 class ValidateFieldsTransformer extends ModelTransformerAbstract
 {
     protected ?string $idField = null;
 
-    protected ModelAbstract $model;
+    protected MetaModelInterface $model;
 
     protected ProjectOverloader $overLoader;
 
@@ -223,7 +223,7 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
         return $this->validators;
     }
 
-    public function transformRowBeforeSave(ModelAbstract $model, array $row): array
+    public function transformRowBeforeSave(MetaModelInterface $model, array $row): array
     {
         $this->model = $model;
         $rowValidators = $this->getValidators();

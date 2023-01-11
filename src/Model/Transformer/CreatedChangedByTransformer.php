@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Gems\Api\Model\Transformer;
 
-use MUtil\Model\ModelAbstract;
 use MUtil\Model\ModelTransformerAbstract;
+use Zalt\Model\MetaModelInterface;
 
 /**
  * Add created and changed by values from currentuser
@@ -19,7 +19,7 @@ class CreatedChangedByTransformer extends ModelTransformerAbstract
         $this->currentUserId = $currentUserId;
     }
 
-    public function transformRowBeforeSave(ModelAbstract $model, array $row): array
+    public function transformRowBeforeSave(MetaModelInterface $model, array $row): array
     {
         $saveTransformers = $model->getCol($model::SAVE_TRANSFORMER);
 

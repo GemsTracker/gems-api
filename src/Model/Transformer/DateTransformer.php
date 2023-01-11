@@ -7,15 +7,15 @@ namespace Gems\Api\Model\Transformer;
 use DateTimeInterface;
 use DateTimeImmutable;
 use MUtil\Model;
-use MUtil\Model\ModelAbstract;
 use MUtil\Model\ModelTransformerAbstract;
+use Zalt\Model\MetaModelInterface;
 
 /**
  * transform date values from model to mutil dates
  */
 class DateTransformer extends ModelTransformerAbstract
 {
-    public function transformRowBeforeSave(ModelAbstract $model, array $row): array
+    public function transformRowBeforeSave(MetaModelInterface $model, array $row): array
     {
         foreach($row as $columnName=>$value) {
             if ($value === null) {
