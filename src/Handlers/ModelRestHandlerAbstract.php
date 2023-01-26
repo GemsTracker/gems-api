@@ -3,7 +3,7 @@
 
 namespace Gems\Api\Handlers;
 
-use Gems\AccessLog\AccesslogRepository;
+use Gems\Audit\AccesslogRepository;
 use Gems\Api\Event\SavedModel;
 use Gems\Api\Event\SaveFailedModel;
 use Gems\Api\Event\SaveModel;
@@ -668,7 +668,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             return $this->accesslogRepository->logChange($request, $respondentId);
         }
 
-        return $this->accesslogRepository->logAction($request, $respondentId);
+        return $this->accesslogRepository->logRequest($request, null, null, $respondentId);
     }
 
     /**
