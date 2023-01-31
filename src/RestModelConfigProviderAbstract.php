@@ -108,7 +108,7 @@ abstract class RestModelConfigProviderAbstract
         ?string $handler = null,
         ?string $idField = null,
         ?string $idRegex = null,
-        ?array $methods = null,
+        array $methods = ['GET'],
         ?string $privilege = null,
         ?array $allowedFields = null,
         ?array $allowedSaveFields = null,
@@ -162,7 +162,8 @@ abstract class RestModelConfigProviderAbstract
         $routes = [];
 
         if (!empty($methods)) {
-            $name = 'api.' . $endpoint . '.structure';
+            $name = "api.$endpoint.structure";
+            $settings['privilege'] = $privilege . '.structure';
             $routes[$name] = [
                 'name' => $name,
                 'path' => '/' . $endpoint . '/structure',
@@ -172,52 +173,26 @@ abstract class RestModelConfigProviderAbstract
             ];
         }
 
-        if (in_array('GET', $methods)) {
-            $name = 'api.' . $endpoint . '.get';
-            $routes[$name] = [
-                'name' => $name,
-                'path' => '/' . $endpoint . '['.$routeParameters.']',
-                'middleware' => $handler,
-                'options' => $settings,
-                'allowed_methods' => ['GET']
-            ];
-        }
+        foreach($methods as $method) {
+            $path = match ($method) {
+                'GET' => '/' . $endpoint . '['.$routeParameters.']',
+                'POST' => '/' . $endpoint,
+                'PATCH', 'PUT', 'DELETE' => '/' . $endpoint . $routeParameters,
+                default => null,
+            };
+            $name = "api.$endpoint.$method";
 
-        $defaultPathMethods = ['OPTIONS'];
-        if (in_array('POST', $methods)) {
-            $defaultPathMethods[] = 'POST';
-        }
+            $settings['privilege'] = "$privilege.$method";
+            $settings['privilegeLabel'] = "API: $endpoint -> $method";
 
-        $name = 'api.' . $endpoint;
-        $routes[$name] = [
-            'name' => $name,
-            'path' => '/' . $endpoint,
-            'middleware' => $handler,
-            'options' => $settings,
-            'allowed_methods' => $defaultPathMethods,
-        ];
-
-        $fixedRouteMethods = [];
-
-        if (in_array('PATCH', $methods)) {
-            $fixedRouteMethods[] = 'PATCH';
-        }
-        if (in_array('PUT', $methods)) {
-            $fixedRouteMethods[] = 'PUT';
-        }
-        if (in_array('DELETE', $methods)) {
-            $fixedRouteMethods[] = 'DELETE';
-        }
-
-        $name = 'api.' . $endpoint . '.fixed';
-        if (!empty($fixedRouteMethods)) {
-            $routes[$name] = [
-                'name' => $name,
-                'path' => '/' . $endpoint . $routeParameters,
-                'middleware' => $handler,
-                'options' => $settings,
-                'allowed_methods' => $fixedRouteMethods,
-            ];
+            [$methodRoute] = $this->createRoute(
+                name: $name,
+                path: $path,
+                handler: $handler,
+                allowedMethods: [$method],
+                options: $settings,
+            );
+            $routes[$name] = $methodRoute;
         }
 
         return $routes;
