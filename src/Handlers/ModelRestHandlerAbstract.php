@@ -923,7 +923,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
                 $value = $value->format(DateTimeInterface::ATOM);
             }
 
-            if (isset($translations[$colName])) {
+            if (isset($translations[$colName]) && is_string($translations[$colName])) {
                 $translatedRow[$translations[$colName]] = $value;
             } else {
                 $translatedRow[$colName] = $value;

@@ -25,12 +25,9 @@ class CreatedChangedByTransformer extends ModelTransformerAbstract
 
         foreach($saveTransformers as $columnName=>$value) {
             if (substr_compare($columnName, '_by', -3) === 0 && $value != $this->currentUserId) {
-                $model->set($columnName, $model::SAVE_TRANSFORMER, $this->currentUserId);
+                $row[$columnName] = $this->currentUserId;
             }
         }
-        /*if ($this->prefix) {
-            \Gems_Model::setChangeFieldsByPrefix($model, $this->prefix, $this->currentUser->getUserId());
-        }*/
 
         return $row;
     }
