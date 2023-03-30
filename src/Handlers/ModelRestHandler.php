@@ -3,6 +3,7 @@
 namespace Gems\Api\Handlers;
 
 use Gems\Api\Exception\ModelException;
+use Gems\Model\MaskedModel;
 use Mezzio\Router\RouteResult;
 use MUtil\Model\ModelAbstract;
 use Psr\Http\Message\ResponseInterface;
@@ -44,14 +45,15 @@ class ModelRestHandler extends ModelRestHandlerAbstract
             $model = $this->loader->create($this->modelName);
         }
 
-
-
         if ($this->applySettings) {
             foreach($this->applySettings as $methodName) {
                 if (method_exists($model, $methodName)) {
                     $model->$methodName();
                 }
             }
+        }
+        if ($model instanceof MaskedModel) {
+            $model->applyMask();
         }
 
         return $model;
