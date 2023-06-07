@@ -31,11 +31,13 @@ class ModelApiHelper
 
         if (isset($rules['allowedFields'])) {
             foreach($rules['allowedFields'] as $key => $allowedField) {
-                if (is_array($allowedField) && $model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
-                    $subModel = $model->get($key, 'model');
-                    $subRules = ['allowedFields' => $allowedField];
-                    $this->applyAllowedColumnsToModel($subModel, $subRules);
-                    $model->set($key, 'allow_api_load', true);
+                if (is_array($allowedField)) {
+                    if ($model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
+                        $subModel = $model->get($key, 'model');
+                        $subRules = ['allowedFields' => $allowedField];
+                        $this->applyAllowedColumnsToModel($subModel, $subRules);
+                        $model->set($key, 'allow_api_load', true);
+                    }
                     continue;
                 }
                 if ($model->has($allowedField)) {
