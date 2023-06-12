@@ -53,10 +53,12 @@ class ModelApiHelper
 
         if (isset($rules['allowedSaveFields'])) {
             foreach($rules['allowedSaveFields'] as $key => $allowedSaveField) {
-                if (is_array($allowedSaveField) && $model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
-                    $subModel = $model->get($key, 'model');
-                    $subRules = ['allowedSaveFields' => $allowedSaveField];
-                    $this->applyAllowedColumnsToModel($subModel, $subRules);
+                if (is_array($allowedField)) {
+                    if ($model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
+                        $subModel = $model->get($key, 'model');
+                        $subRules = ['allowedSaveFields' => $allowedSaveField];
+                        $this->applyAllowedColumnsToModel($subModel, $subRules);
+                    }
                     continue;
                 }
                 if ($model->has($allowedSaveField)) {
