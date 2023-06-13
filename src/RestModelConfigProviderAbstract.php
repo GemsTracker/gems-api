@@ -4,12 +4,12 @@ namespace Gems\Api;
 
 use Gems\Api\Handlers\ModelRestHandler;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
+use Gems\Middleware\FlashMessageMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
 use Gems\Middleware\SecurityHeadersMiddleware;
 use Gems\Util\RouteGroupTrait;
 use Mezzio\Csrf\CsrfMiddleware;
-use Mezzio\Flash\FlashMessageMiddleware;
 use Mezzio\Session\SessionMiddleware;
 
 abstract class RestModelConfigProviderAbstract
