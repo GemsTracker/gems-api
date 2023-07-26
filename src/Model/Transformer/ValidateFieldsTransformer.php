@@ -72,9 +72,9 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
             }
 
             if ($options !== null) {
-                $validator = $this->overLoader->create('Validate\\' . $validator, $options);
+                $validator = $this->overLoader->create('Validator\\' . $validator, $options);
             } else {
-                $validator = $this->overLoader->create('Validate\\'.$validator);
+                $validator = $this->overLoader->create('Validator\\'.$validator);
             }
 
             if ($validator) {
