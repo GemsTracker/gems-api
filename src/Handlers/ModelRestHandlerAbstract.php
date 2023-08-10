@@ -17,8 +17,6 @@ use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
 use Gems\Model;
 use Laminas\Db\Adapter\Adapter;
 use Mezzio\Router\Exception\InvalidArgumentException;
-use MUtil\Model\ModelAbstract;
-use MUtil\Model\Type\JsonData;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -30,7 +28,7 @@ use Exception;
 use Mezzio\Helper\UrlHelper;
 use Mezzio\Router\RouteResult;
 use DateTimeInterface;
-use Zalt\Model\MetaModelInterface;
+use Zalt\Model\Data\DataReaderInterface;
 
 abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 {
@@ -50,9 +48,9 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     protected int $itemsPerPage = 25;
 
     /**
-     * @var ModelAbstract|null Gemstracker Model
+     * @var DataReaderInterface|null Gemstracker Model
      */
-    protected ?MetaModelInterface $model = null;
+    protected ?DataReaderInterface $model = null;
 
     protected ModelApiHelper $modelApiHelper;
 
@@ -152,9 +150,9 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     /**
      * Create a Gemstracker model
      *
-     * @return ModelAbstract
+     * @return DataReaderInterface
      */
-    abstract protected function createModel(): ModelAbstract;
+    abstract protected function createModel(): DataReaderInterface;
 
     /**
      * Delete a row from the model
@@ -207,9 +205,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     protected function filterColumns(array $row, bool $save=false, bool $useKeys=true): array
     {
+        $metaModel = $this->model->getMetaModel();
         $filterOptions = $this->routeOptions;
-        $modelAllowFields = $this->model->getColNames('allow_api_load');
-        $modelAllowSaveFields = $this->model->getColNames('allow_api_save');
+        $modelAllowFields = $metaModel->getColNames('allow_api_load');
+        $modelAllowSaveFields = $metaModel->getColNames('allow_api_save');
         if ($modelAllowFields && count($modelAllowFields)) {
             if (!isset($filterOptions['allowedFields'])) {
                 $filterOptions['allowedFields'] = [];
@@ -316,7 +315,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $idField = [$idField];
         }
 
-        $apiNames = $this->modelApiHelper->getApiNames($this->model, true);
+        $apiNames = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), true);
 
         $filter = [];
         foreach($idField as $key=>$singleField) {
@@ -887,9 +886,9 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function structure(): JsonResponse
     {
-        $this->modelApiHelper->applyAllowedColumnsToModel($this->model, $this->routeOptions);
+        $this->modelApiHelper->applyAllowedColumnsToModel($this->model->getMetaModel(), $this->routeOptions);
 
-        $structure = $this->modelApiHelper->getStructure($this->model);
+        $structure = $this->modelApiHelper->getStructure($this->model->getMetaModel());
         return new JsonResponse($structure);
     }
 
@@ -902,7 +901,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function translateRow(array $row, bool $reversed=false): array
     {
-        $translations = $this->modelApiHelper->getApiNames($this->model, $reversed);
+        $translations = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), $reversed);
 
         return $this->translateList($row, $translations);
     }

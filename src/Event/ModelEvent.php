@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Gems\Api\Event;
 
-use MUtil\Model\ModelAbstract;
+use Zalt\Model\Data\DataReaderInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class ModelEvent extends Event
 {
-    /**
-     * @var ModelAbstract
-     */
-    protected $model;
-
-    public function __construct(ModelAbstract $model)
+    public function __construct(
+        protected readonly DataReaderInterface $model)
     {
         $this->model = $model;
     }

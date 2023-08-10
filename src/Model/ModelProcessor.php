@@ -8,26 +8,19 @@ use Gems\Api\Exception\ModelValidationException;
 use Laminas\Validator\ValidatorInterface;
 use MUtil\Model;
 use MUtil\Model\JoinModel;
-use MUtil\Model\ModelAbstract;
 use Psr\Log\LoggerInterface;
 use Zalt\Loader\ProjectOverloader;
+use Zalt\Model\Data\DataReaderInterface;
 
 class ModelProcessor
 {
-    protected ProjectOverloader $loader;
-
-    protected ModelAbstract $model;
-
-    protected int $userId;
-
-    protected ?LoggerInterface $logger;
-
-    public function __construct(ProjectOverloader $loader, ModelAbstract $model, $userId, $logger=null)
+    public function __construct(
+        protected readonly ProjectOverloader $loader,
+        protected readonly DataReaderInterface $model,
+        protected readonly int $userId,
+        protected readonly LoggerInterface|null $logger=null,
+    )
     {
-        $this->loader = $loader;
-        $this->model = $model;
-        $this->userId = $userId;
-        $this->logger = $logger;
     }
 
     protected function addDefaults(array $row): array
@@ -121,48 +114,49 @@ class ModelProcessor
      */
     public function getValidators(): array
     {
+        $metaModel = $this->model->getMetaModel();
         if (!$this->validators) {
             if ($this->model instanceof JoinModel && method_exists($this->model, 'getSaveTables')) {
-                $saveableTables = $this->model->getSaveTables();
+                $saveableTables = $metaModel->getSaveTables();
 
                 $multiValidators = [];
                 $singleValidators = [];
                 $allRequiredFields = [];
                 $types = [];
 
-                foreach($this->model->getCol('table') as $colName=>$table) {
+                foreach($metaModel->getCol('table') as $colName=>$table) {
                     if (isset($saveableTables[$table])) {
-                        $columnValidators = $this->model->get($colName, 'validators');
+                        $columnValidators = $metaModel->get($colName, 'validators');
                         if ($columnValidators !== null) {
                             $multiValidators[$colName] = $columnValidators;
                         }
-                        $columnValidator = $this->model->get($colName, 'validator');
+                        $columnValidator = $metaModel->get($colName, 'validator');
                         if ($columnValidator) {
                             $singleValidators[$colName] = $columnValidator;
                         }
-                        $columnRequired = $this->model->get($colName, 'required');
+                        $columnRequired = $metaModel->get($colName, 'required');
                         if ($columnRequired === true) {
-                            if ($this->update === true || $this->model->get($colName, 'key') !== true) {
+                            if ($this->update === true || $metaModel->get($colName, 'key') !== true) {
                                 $allRequiredFields[$colName] = $columnRequired;
                             }
                         }
-                        if ($columnType = $this->model->get($colName, 'type')) {
-                            $types[$colName] = $this->model->get($colName, 'type');
+                        if ($columnType = $metaModel->get($colName, 'type')) {
+                            $types[$colName] = $metaModel->get($colName, 'type');
                         }
                     }
                 }
             } else {
-                $multiValidators = $this->model->getCol('validators');
-                $singleValidators = $this->model->getCol('validator');
-                $allRequiredFields = $this->model->getCol('required');
+                $multiValidators = $metaModel->getCol('validators');
+                $singleValidators = $metaModel->getCol('validator');
+                $allRequiredFields = $metaModel->getCol('required');
 
-                $types = $this->model->getCol('type');
+                $types = $metaModel->getCol('type');
             }
 
-            $defaultFields = $this->model->getCol('default');
+            $defaultFields = $metaModel->getCol('default');
 
-            $model = $this->model;
-            $saveTransformers = $this->model->getCol($model::SAVE_TRANSFORMER);
+            $model = $metaModel;
+            $saveTransformers = $metaModel->getCol($model::SAVE_TRANSFORMER);
 
             $changeFields = [];
             foreach($saveTransformers as $columnName=>$value) {
@@ -206,7 +200,7 @@ class ModelProcessor
 
             foreach($requiredFields as $columnName=>$required) {
 
-                if ($required && $this->model->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
+                if ($required && $metaModel->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
                     $multiValidators[$columnName][] = $this->getValidator('NotEmpty');
 
                 } else {
@@ -264,11 +258,12 @@ class ModelProcessor
      */
     protected function setModelDates(array $row): array
     {
+        $metaModel = $this->model->getMetaModel();
         foreach($row as $columnName=>$value) {
             if ($value === null) {
                 continue;
             }
-            $type = $this->model->get($columnName, 'type');
+            $type = $metaModel->get($columnName, 'type');
             if ($type === Model::TYPE_DATETIME || $type === Model::TYPE_DATE) {
                 //if ($this->model->get($columnName, 'dateFormat') === null) {
                 //    $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);

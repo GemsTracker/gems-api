@@ -3,13 +3,9 @@
 namespace Gems\Api\Handlers;
 
 use Gems\Api\Exception\ModelException;
-use Gems\Model\MaskedModel;
-use Mezzio\Router\RouteResult;
-use MUtil\Model\ModelAbstract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Zalt\Loader\DependencyResolver\ConstructorDependencyResolver;
+use Zalt\Model\Data\DataReaderInterface;
 
 class ModelRestHandler extends ModelRestHandlerAbstract
 {
@@ -21,9 +17,9 @@ class ModelRestHandler extends ModelRestHandlerAbstract
 
     protected ?string $modelName = null;
 
-    protected function createModel(): ModelAbstract
+    protected function createModel(): DataReaderInterface
     {
-        if ($this->model instanceof ModelAbstract) {
+        if ($this->model instanceof DataReaderInterface) {
             return $this->model;
         }
 
@@ -31,19 +27,7 @@ class ModelRestHandler extends ModelRestHandlerAbstract
             throw new ModelException('No model or model name set');
         }
 
-        if ($this->constructor) {
-            $loader = clone $this->loader;
-            $loader->setDependencyResolver(new ConstructorDependencyResolver());
-            /**
-             * @var ModelAbstract $model
-             */
-            $model = $loader->create($this->modelName);
-        } else {
-            /**
-             * @var ModelAbstract $model
-             */
-            $model = $this->loader->create($this->modelName);
-        }
+        $model = $this->loader->create($this->modelName);
 
         if ($this->applySettings) {
             foreach($this->applySettings as $methodName) {
@@ -52,7 +36,7 @@ class ModelRestHandler extends ModelRestHandlerAbstract
                 }
             }
         }
-        if ($model instanceof MaskedModel) {
+        if ($model instanceof \Gems\Model\MaskedModel) {
             $model->applyMask();
         }
 
@@ -61,7 +45,7 @@ class ModelRestHandler extends ModelRestHandlerAbstract
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $routeResult = $request->getAttribute(RouteResult::class);
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
         if ($route) {
             $options = $route->getOptions();
@@ -92,13 +76,13 @@ class ModelRestHandler extends ModelRestHandlerAbstract
 
     /**
      * Set the name of the model you want to load
-     * @param string|ModelAbstract namespaced classname, project loader classname or actual class of a model
+     * @param string|DataReaderInterface namespaced classname, project loader classname or actual class of a model
      */
-    public function setModelName(ModelAbstract|string $modelName): void
+    public function setModelName(DataReaderInterface|string $modelName): void
     {
         if (is_string($modelName)) {
             $this->modelName = $modelName;
-        } elseif ($modelName instanceof ModelAbstract) {
+        } elseif ($modelName instanceof DataReaderInterface) {
             $this->model = $modelName;
         }
     }

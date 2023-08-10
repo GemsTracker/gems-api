@@ -2,8 +2,9 @@
 
 namespace Gems\Api\Model;
 
-use MUtil\Model\ModelAbstract;
+use Laminas\Db\Sql\Expression;
 use MUtil\Model\Type\JsonData;
+use Zalt\Model\MetaModel;
 use Zalt\Model\MetaModelInterface;
 
 class ModelApiHelper
@@ -159,8 +160,8 @@ class ModelApiHelper
                             MetaModelInterface::TYPE_CHILD_MODEL => 'child_model',
                             default => 'no_value',
                         };
-                        if ($model->has($fieldName, ModelAbstract::SAVE_TRANSFORMER)) {
-                            $transformer = $model->get($fieldName, ModelAbstract::SAVE_TRANSFORMER);
+                        if ($model->has($fieldName, MetaModel::SAVE_TRANSFORMER)) {
+                            $transformer = $model->get($fieldName, MetaModel::SAVE_TRANSFORMER);
                             if (is_array($transformer) && $transformer[0] instanceof JsonData) {
                                 $structure[$fieldLabel][$attributeName] = 'json';
                             }
@@ -171,6 +172,10 @@ class ModelApiHelper
                         switch (true) {
                             case $structure[$fieldLabel][$attributeName] instanceof \Zend_Db_Expr:
                                 $structure[$fieldLabel][$attributeName] = $structure[$fieldLabel][$attributeName]->__toString(
+                                );
+                                break;
+                            case $structure[$fieldLabel][$attributeName] instanceof Expression:
+                                $structure[$fieldLabel][$attributeName] = $structure[$fieldLabel][$attributeName]->getExpression(
                                 );
                                 break;
                             case ($structure[$fieldLabel][$attributeName] instanceof \Zend_Date
