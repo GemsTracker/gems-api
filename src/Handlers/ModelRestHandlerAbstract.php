@@ -338,10 +338,16 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     {
         $filters = $this->getListFilter($request);
         $order = $this->getListOrder($request);
-        $paginatedFilters = $this->getListPagination($request, $filters);
-        $headers = $this->getPaginationHeaders($request, $filters);
 
-        $rows = $this->model->load($paginatedFilters, $order);
+        $queryParams = $request->getQueryParams();
+        $page = (int)($queryParams['page'] ?? 1);
+        $this->itemsPerPage = (int)($queryParams['per_page'] ?? $this->itemsPerPage);
+
+        $itemCount = 0;
+
+        $rows = $this->model->loadPageWithCount($itemCount, $this->itemsPerPage, $page, $filters, $order);
+
+        $headers = $this->getPaginationHeaders($request, $itemCount);
 
         $translatedRows = [];
         foreach($rows as $key=>$row) {
@@ -374,7 +380,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $allowedFilterFields = $this->getAllowedFilterFields();
 
-        $translations = $this->modelApiHelper->getApiNames($this->model, true);
+        $translations = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), true);
 
         $filters = [];
 
@@ -576,16 +582,13 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * - Link: links to the previous, next, first and last page if applicable
      *
      * @param ServerRequestInterface $request
-     * @param array $filter
-     * @param array $sort
+     * @param int $itemCount number of total rows without pagination
      * @return array
      */
-    public function getPaginationHeaders(ServerRequestInterface $request, array $filter=[], array $sort=[]): array
+    public function getPaginationHeaders(ServerRequestInterface $request, int $itemCount): array
     {
-        $count = $this->model->getItemCount($filter, $sort);
-
         $headers = [
-            'X-total-count' => $count
+            'X-total-count' => $itemCount
         ];
 
         if ($this->itemsPerPage) {
@@ -596,7 +599,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
                 $page = $params['page'];
             }
 
-            $lastPage = ceil($count / $this->itemsPerPage);
+            $lastPage = ceil($itemCount / $this->itemsPerPage);
 
             if ($page > $lastPage) {
                 return [];
