@@ -249,7 +249,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     protected function getAllowedFilterFields(): array
     {
-        return $this->model->getItemNames();
+        return $this->model->getMetaModel()->getItemNames();
     }
 
     /**
@@ -345,7 +345,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $itemCount = 0;
 
-        $rows = $this->model->loadPageWithCount($itemCount, $this->itemsPerPage, $page, $filters, $order);
+        $rows = $this->model->loadPageWithCount($itemCount, $page, $this->itemsPerPage, $filters, $order);
 
         $headers = $this->getPaginationHeaders($request, $itemCount);
 
