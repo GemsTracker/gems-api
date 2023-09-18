@@ -19,22 +19,22 @@ class SaveFailedModel extends ModelEvent
      */
     protected array $saveData;
 
-    public function getException()
+    public function getException(): Exception
     {
         return $this->exception;
     }
 
-    public function getSaveData()
+    public function getSaveData(): array
     {
         return $this->saveData;
     }
 
-    public function setException(Exception $exception)
+    public function setException(Exception $exception): void
     {
         $this->exception = $exception;
     }
 
-    public function setSaveData(array $data)
+    public function setSaveData(array $data): void
     {
         $this->saveData = $data;
     }

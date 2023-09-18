@@ -8,7 +8,7 @@ trait EventDuration
 {
     protected DateTimeInterface|float $start;
 
-    public function getDurationInSeconds()
+    public function getDurationInSeconds(): int|null
     {
         if ($this->start instanceof \DateTimeInterface) {
             $now = new \DateTimeImmutable();
@@ -21,7 +21,7 @@ trait EventDuration
         return null;
     }
 
-    public function setStart(DateTimeInterface|float $start)
+    public function setStart(DateTimeInterface|float $start): void
     {
         $this->start = $start;
     }

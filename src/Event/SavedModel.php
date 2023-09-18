@@ -15,12 +15,12 @@ class SavedModel extends ModelEvent
 
     protected array $oldData;
 
-    public function getNewData()
+    public function getNewData(): array
     {
         return $this->newData;
     }
 
-    public function getOldData()
+    public function getOldData(): array
     {
         return $this->oldData;
     }
