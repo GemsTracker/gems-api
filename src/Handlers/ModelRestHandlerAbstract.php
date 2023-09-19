@@ -3,6 +3,7 @@
 
 namespace Gems\Api\Handlers;
 
+use Gems\Api\Util\ContentTypeChecker;
 use Gems\Audit\AccesslogRepository;
 use Gems\Api\Event\SavedModel;
 use Gems\Api\Event\SaveFailedModel;
@@ -36,6 +37,8 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * @var array List of allowed content types as input for write methods
      */
     protected array $allowedContentTypes = ['application/json'];
+
+    protected ContentTypeChecker $contentTypeChecker;
 
     /**
      * @var string|null Fieldname of model that identifies a row with a unique ID
@@ -91,6 +94,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     )
     {
         $this->modelApiHelper = new ModelApiHelper();
+        $this->contentTypeChecker = new ContentTypeChecker($this->allowedContentTypes);
     }
 
     protected function addCurrentUserToModel(): void
@@ -127,24 +131,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     protected function beforeSaveRow(array $row): array
     {
         return $row;
-    }
-
-    /**
-     * Check if current content type is allowed for the current method
-     *
-     * @param ServerRequestInterface $request
-     * @return bool
-     */
-    protected function checkContentType(ServerRequestInterface $request): bool
-    {
-        $contentTypeHeader = $request->getHeaderLine('content-type');
-        foreach ($this->allowedContentTypes as $contentType) {
-            if (str_contains($contentTypeHeader, $contentType)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -655,7 +641,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function post(ServerRequestInterface $request): ResponseInterface
     {
-        if ($this->checkContentType($request) === false) {
+        if ($this->contentTypeChecker->checkContentType($request) === false) {
             return new EmptyResponse(415);
         }
 
@@ -703,7 +689,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             return new EmptyResponse(404);
         }
 
-        if ($this->checkContentType($request) === false) {
+        if ($this->contentTypeChecker->checkContentType($request) === false) {
             return new EmptyResponse(415);
         }
 
