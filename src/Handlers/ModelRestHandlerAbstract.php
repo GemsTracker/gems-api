@@ -93,7 +93,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         protected Adapter $db
     )
     {
-        $this->modelApiHelper = new ModelApiHelper();
         $this->contentTypeChecker = new ContentTypeChecker($this->allowedContentTypes);
     }
 
