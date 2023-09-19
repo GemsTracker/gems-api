@@ -109,14 +109,12 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     protected function afterSaveRow(array $newRow): array
     {
-        $event = new SavedModel($this->model);
-        $event->setNewData($newRow);
         $oldData = [];
         if (method_exists($this->model, 'getOldValues')) {
             $oldData = $this->model->getOldValues();
         }
-        $event->setOldData($oldData);
-        $event->setStart($this->requestStart);
+
+        $event = new SavedModel($this->model, $newRow, $oldData, $this->requestStart);
         $this->eventDispatcher->dispatch($event, 'model.' . $this->model->getName() . '.saved');
         return $newRow;
     }
@@ -763,10 +761,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         } catch(Exception $e) {
             // Row could not be saved.
 
-            $event = new SaveFailedModel($this->model);
-            $event->setSaveData($row);
-            $event->setException($e);
-
+            $event = new SaveFailedModel($this->model, $e, $row);
             $this->eventDispatcher->dispatch($event, 'model.' . $this->model->getName() . '.save.error');
 
             if ($e instanceof ModelValidationException) {

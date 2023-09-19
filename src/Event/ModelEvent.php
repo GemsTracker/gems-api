@@ -10,7 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 class ModelEvent extends Event
 {
     public function __construct(
-        protected readonly DataReaderInterface $model)
+        protected readonly DataReaderInterface $model,
+    )
     {
     }
 

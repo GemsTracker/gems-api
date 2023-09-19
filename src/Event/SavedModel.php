@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace Gems\Api\Event;
 
+use Zalt\Model\Data\DataReaderInterface;
+
 class SavedModel extends ModelEvent
 {
     use EventDuration;
 
-    /**
-     * @var array New data after save
-     */
-    protected array $newData;
-
-    protected array $oldData;
+    public function __construct(
+        DataReaderInterface $model,
+        protected readonly array $newData,
+        protected readonly array $oldData = [],
+        float|null $start = null,
+    )
+    {
+        parent::__construct($model);
+        $this->start = $start ?? microtime(true);
+    }
 
     public function getNewData(): array
     {
@@ -45,15 +51,5 @@ class SavedModel extends ModelEvent
             $diffValues[$key] = $newValue;
         }
         return $diffValues;
-    }
-
-    public function setNewData(array $newData): void
-    {
-        $this->newData = $newData;
-    }
-
-    public function setOldData(array $oldData): void
-    {
-        $this->oldData = $oldData;
     }
 }
