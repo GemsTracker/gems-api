@@ -83,10 +83,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * @param Adapter $db
      */
     public function __construct(
-        protected EventDispatcherInterface $eventDispatcher,
-        protected AccesslogRepository $accesslogRepository,
-        protected ProjectOverloader $loader,
-        protected UrlHelper $urlHelper,
+        protected readonly EventDispatcherInterface $eventDispatcher,
+        protected readonly AccesslogRepository $accesslogRepository,
+        protected readonly ProjectOverloader $loader,
+        protected readonly UrlHelper $urlHelper,
         protected Adapter $db
     )
     {
@@ -480,7 +480,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $orderParams = explode(',', $params['order']);
 
             $order = [];
-            $translations = $this->modelApiHelper->getApiNames($this->model, true);
+            $translations = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), true);
 
             foreach($orderParams as $orderParam) {
                 $sort = false;
@@ -515,39 +515,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             return $order;
         }
         return $this->model->getSort();
-    }
-
-    /**
-     * Get pagination filters for listing model items with a GET request
-     *
-     * uses per_page and page to set the sql limit
-     *
-     * @param ServerRequestInterface $request
-     * @param array $filters
-     * @return array
-     */
-    public function getListPagination(ServerRequestInterface $request, array $filters): array
-    {
-        $params = $request->getQueryParams();
-
-        if (isset($params['per_page'])) {
-            $this->itemsPerPage = $params['per_page'];
-        }
-
-        if ($this->itemsPerPage) {
-            $page = 1;
-            if (isset($params['page'])) {
-                $page = $params['page'];
-            }
-            $offset = ($page-1) * $this->itemsPerPage;
-
-            $filters['limit'] = [
-                $this->itemsPerPage,
-                $offset,
-            ];
-        }
-
-        return $filters;
     }
 
     /**
@@ -799,7 +766,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         $userId = (int)$request->getAttribute('user_id');
 
         $this->model->addTransformer(new CreatedChangedByTransformer($userId));
-        $this->model->addTransformer(new ValidateFieldsTransformer($this->loader, $userId));
+        $this->model->addTransformer(new ValidateFieldsTransformer($this->model, $this->loader, $userId));
         $this->model->addTransformer(new DateTransformer());
 
         $row = $this->filterColumns($row, true);
