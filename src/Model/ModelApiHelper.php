@@ -2,6 +2,7 @@
 
 namespace Gems\Api\Model;
 
+use DateTimeInterface;
 use Laminas\Db\Sql\Expression;
 use MUtil\Model\Type\JsonData;
 use Zalt\Model\MetaModel;
@@ -209,6 +210,46 @@ class ModelApiHelper
     public function getStructureAttributes(): array
     {
         return $this->structureAttributes;
+    }
+
+    /**
+     * Translate a row with the api names and a date transformation to ISO 8601
+     *
+     * @param array $row
+     * @param bool $reversed
+     * @return array
+     */
+    public function translateRow(MetaModelInterface $model, array $row, bool $reversed=false): array
+    {
+        $translations = $this->getApiNames($model->getMetaModel(), $reversed);
+
+        return $this->translateList($row, $translations);
+    }
+
+    public function translateList(array $row, array $translations): array
+    {
+        $translatedRow = [];
+        foreach($row as $colName=>$value) {
+
+            if (is_array($value) && isset($translations[$colName]) && is_array($translations[$colName])) {
+                foreach($value as $key=>$subRow) {
+                    $translatedRow[$colName][$key] = $this->translateList($subRow, $translations[$colName]);
+                }
+                continue;
+            }
+
+            if ($value instanceof DateTimeInterface) {
+                $value = $value->format(DateTimeInterface::ATOM);
+            }
+
+            if (isset($translations[$colName]) && is_string($translations[$colName])) {
+                $translatedRow[$translations[$colName]] = $value;
+            } else {
+                $translatedRow[$colName] = $value;
+            }
+        }
+
+        return $translatedRow;
     }
 }
 

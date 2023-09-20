@@ -55,8 +55,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     protected ?DataReaderInterface $model = null;
 
-    protected ModelApiHelper $modelApiHelper;
-
     protected DateTimeInterface|float $requestStart;
 
     /**
@@ -90,7 +88,8 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         protected readonly AccesslogRepository $accesslogRepository,
         protected readonly ProjectOverloader $loader,
         protected readonly UrlHelper $urlHelper,
-        protected Adapter $db
+        protected readonly ModelApiHelper $modelApiHelper,
+        protected Adapter $db,
     )
     {
         $this->contentTypeChecker = new ContentTypeChecker($this->allowedContentTypes);
@@ -334,7 +333,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $translatedRows = [];
         foreach($rows as $key=>$row) {
-            $translatedRows[$key] = $this->filterColumns($this->translateRow($row));
+            $translatedRows[$key] = $this->filterColumns($this->modelApiHelper->translateRow($this->model->getMetaModel(), $row));
         }
 
         return new JsonResponse($translatedRows, 200, $headers);
@@ -516,7 +515,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $row = $this->model->loadFirst($filter);
             $this->logRequest($request, $row);
             if (!empty($row)) {
-                $translatedRow = $this->translateRow($row);
+                $translatedRow = $this->modelApiHelper->translateRow($this->model->getMetaModel(), $row);
                 $filteredRow = $this->filterColumns($translatedRow);
                 return new JsonResponse($filteredRow);
             }
@@ -653,7 +652,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         $eventName = $this->model->getName() . '.post';
         $this->eventDispatcher->dispatch($event, $eventName);
 
-        $row = $this->translateRow($parsedBody, true);
+        $row = $this->modelApiHelper->translateRow($this->model->getMetaModel(), $parsedBody, true);
 
         $response = $this->saveRow($request, $row);
         if (in_array($response->getStatusCode(), [200,201])) {
@@ -697,7 +696,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         $eventName = $this->model->getName() . '.patch';
         $this->eventDispatcher->dispatch($event, $eventName);
 
-        $newRowData = $this->translateRow($parsedBody, true);
+        $newRowData = $this->modelApiHelper->translateRow($this->model->getMetaModel(), $parsedBody, true);
 
         $filter = $this->getIdFilter($id, $idField);
 
@@ -840,45 +839,5 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $structure = $this->modelApiHelper->getStructure($this->model->getMetaModel());
         return new JsonResponse($structure);
-    }
-
-    /**
-     * Translate a row with the api names and a date transformation to ISO 8601
-     *
-     * @param array $row
-     * @param bool $reversed
-     * @return array
-     */
-    public function translateRow(array $row, bool $reversed=false): array
-    {
-        $translations = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), $reversed);
-
-        return $this->translateList($row, $translations);
-    }
-
-    public function translateList(array $row, array $translations): array
-    {
-        $translatedRow = [];
-        foreach($row as $colName=>$value) {
-
-            if (is_array($value) && isset($translations[$colName]) && is_array($translations[$colName])) {
-                foreach($value as $key=>$subrow) {
-                    $translatedRow[$colName][$key] = $this->translateList($subrow, $translations[$colName]);
-                }
-                continue;
-            }
-
-            if ($value instanceof DateTimeInterface) {
-                $value = $value->format(DateTimeInterface::ATOM);
-            }
-
-            if (isset($translations[$colName]) && is_string($translations[$colName])) {
-                $translatedRow[$translations[$colName]] = $value;
-            } else {
-                $translatedRow[$colName] = $value;
-            }
-        }
-
-        return $translatedRow;
     }
 }
