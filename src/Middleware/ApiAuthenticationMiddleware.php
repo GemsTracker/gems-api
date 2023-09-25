@@ -7,6 +7,8 @@ use Gems\AuthNew\AuthenticationMiddleware;
 use Gems\AuthNew\AuthenticationServiceBuilder;
 use Gems\AuthTfa\OtpMethodBuilder;
 use Gems\AuthTfa\TfaService;
+use Gems\Legacy\CurrentUserRepository;
+use Gems\OAuth2\Entity\User;
 use Gems\User\UserLoader;
 use Laminas\Diactoros\Response;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -26,7 +28,8 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
     public function __construct(
         private AuthenticationServiceBuilder $authenticationServiceBuilder,
         private OtpMethodBuilder $otpMethodBuilder,
-        //private readonly UserLoader $userLoader,
+        private ResourceServer $resourceServer,
+        private CurrentUserRepository $currentUserRepository,
     )
     {}
 
@@ -51,14 +54,31 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
 
     protected function validateAuthentication(ServerRequestInterface $request): ServerRequestInterface
     {
-        /*if ($request->hasHeader('authorization') !== false) {
+        if ($request->hasHeader('authorization') !== false) {
             return $this->validateOauth2Authentication($request);
-        }*/
+        }
 
         return $this->validateSessionAuthentication($request);
     }
 
-    protected function validateSessionAuthentication(ServerRequestInterface $request)
+    protected function validateOauth2Authentication(ServerRequestInterface $request): ServerRequestInterface
+    {
+        $request = $this->resourceServer->validateAuthenticatedRequest($request);
+        if ($oauthUserId = $request->getAttribute('oauth_user_id')) {
+
+            list($userId, $loginName, $loginOrganization) = explode(User::ID_SEPARATOR, $oauthUserId);
+            $request = $request
+                ->withAttribute(static::CURRENT_USER_ID, $userId)
+                ->withAttribute(static::CURRENT_USER_NAME, $loginName)
+                ->withAttribute(static::CURRENT_USER_ORGANIZATION, $loginOrganization);
+
+
+            $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
+            $this->currentUserRepository->setCurrentUserId($userId);
+        }
+    }
+
+    protected function validateSessionAuthentication(ServerRequestInterface $request): ServerRequestInterface
     {
         $session = $request->getAttribute(SessionInterface::class);
         $authenticationService = $this->authenticationServiceBuilder->buildAuthenticationService($session);
