@@ -75,7 +75,10 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
 
             $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
             $this->currentUserRepository->setCurrentUserId($userId);
+
+            return $request;
         }
+        throw OAuthServerException::accessDenied('user not authenticated');
     }
 
     protected function validateSessionAuthentication(ServerRequestInterface $request): ServerRequestInterface
