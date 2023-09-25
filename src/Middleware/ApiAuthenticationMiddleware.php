@@ -66,15 +66,18 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
         $request = $this->resourceServer->validateAuthenticatedRequest($request);
         if ($oauthUserId = $request->getAttribute('oauth_user_id')) {
 
-            list($userId, $loginName, $loginOrganization) = explode(User::ID_SEPARATOR, $oauthUserId);
+            list($loginName, $loginOrganization) = explode(User::ID_SEPARATOR, $oauthUserId);
             $request = $request
-                ->withAttribute(static::CURRENT_USER_ID, $userId)
                 ->withAttribute(static::CURRENT_USER_NAME, $loginName)
                 ->withAttribute(static::CURRENT_USER_ORGANIZATION, $loginOrganization);
 
-
             $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
-            $this->currentUserRepository->setCurrentUserId($userId);
+
+            $userId = $request->getAttribute(static::CURRENT_USER_ID);
+
+            if ($userId !== null) {
+                $this->currentUserRepository->setCurrentUserId($userId);
+            }
 
             return $request;
         }
