@@ -1,0 +1,146 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^If condition is always true\\.$#"
+			count: 1
+			path: src/Event/DeleteModel.php
+
+		-
+			message: "#^Method Gems\\\\Api\\\\Event\\\\DeleteModel\\:\\:getDurationInSeconds\\(\\) should return int\\|null but returns float\\.$#"
+			count: 1
+			path: src/Event/DeleteModel.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: src/Event/DeleteModel.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: src/Event/SavedModel.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:has\\(\\)\\.$#"
+			count: 1
+			path: src/Event/SavedModel.php
+
+		-
+			message: "#^If condition is always true\\.$#"
+			count: 1
+			path: src/Event/SavedModel.php
+
+		-
+			message: "#^Method Gems\\\\Api\\\\Event\\\\SavedModel\\:\\:getDurationInSeconds\\(\\) should return int\\|null but returns float\\.$#"
+			count: 1
+			path: src/Event/SavedModel.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: src/Event/SavedModel.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(string\\|DataReaderInterface namespaced classname, project loader classname or actual class of a model\\)\\: Unexpected token \"namespaced\", expected variable at offset 95$#"
+			count: 1
+			path: src/Handlers/ModelRestHandler.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:addTransformer\\(\\)\\.$#"
+			count: 3
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:delete\\(\\)\\.$#"
+			count: 1
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:getKeys\\(\\)\\.$#"
+			count: 1
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\Data\\\\DataReaderInterface\\:\\:save\\(\\)\\.$#"
+			count: 1
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Method Psr\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 5
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$handler$#"
+			count: 1
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Right side of && is always true\\.$#"
+			count: 2
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between array\\<string\\> and null will always evaluate to false\\.$#"
+			count: 1
+			path: src/Handlers/ModelRestHandlerAbstract.php
+
+		-
+			message: "#^Parameter \\#2 \\$organizationId of method Gems\\\\Legacy\\\\CurrentUserRepository\\:\\:setCurrentUserCredentials\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: src/Middleware/ApiAuthenticationMiddleware.php
+
+		-
+			message: "#^Call to an undefined method Zalt\\\\Model\\\\MetaModelInterface\\:\\:getMetaModel\\(\\)\\.$#"
+			count: 1
+			path: src/Model/ModelApiHelper.php
+
+		-
+			message: "#^Variable \\$structure might not be defined\\.$#"
+			count: 1
+			path: src/Model/ModelApiHelper.php
+
+		-
+			message: "#^Variable \\$disallowedFields might not be defined\\.$#"
+			count: 1
+			path: src/Model/RouteOptionsModelFilter.php
+
+		-
+			message: "#^Variable \\$filteredRow might not be defined\\.$#"
+			count: 1
+			path: src/Model/RouteOptionsModelFilter.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#"
+			count: 1
+			path: src/Model/Transformer/DateTransformer.php
+
+		-
+			message: "#^Call to function is_array\\(\\) with string\\|null will always evaluate to false\\.$#"
+			count: 1
+			path: src/Model/Transformer/ValidateFieldsTransformer.php
+
+		-
+			message: "#^If condition is always true\\.$#"
+			count: 1
+			path: src/Model/Transformer/ValidateFieldsTransformer.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: src/Model/Transformer/ValidateFieldsTransformer.php
+
+		-
+			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"
+			count: 1
+			path: src/RestModelConfigProviderAbstract.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$includeModelRoutes$#"
+			count: 1
+			path: src/RestModelConfigProviderAbstract.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/RestModelConfigProviderAbstract.php
