@@ -219,9 +219,9 @@ class ModelApiHelper
      * @param bool $reversed
      * @return array
      */
-    public function translateRow(MetaModelInterface $model, array $row, bool $reversed=false): array
+    public function translateRow(MetaModelInterface $metaModel, array $row, bool $reversed=false): array
     {
-        $translations = $this->getApiNames($model->getMetaModel(), $reversed);
+        $translations = $this->getApiNames($metaModel, $reversed);
 
         return $this->translateList($row, $translations);
     }
