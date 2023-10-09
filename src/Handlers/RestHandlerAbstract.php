@@ -2,7 +2,9 @@
 
 namespace Gems\Api\Handlers;
 
+use Gems\Api\Exception\IncorrectDataException;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
+use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Router\RouteResult;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -66,7 +68,14 @@ abstract class RestHandlerAbstract implements RequestHandlerInterface
                 return $this->structure();
             }
         } elseif (method_exists($this, $method)) {
-            $this->method = $method;
+            try {
+                $this->method = $method;
+            } catch(IncorrectDataException $e) {
+
+                return new JsonResponse([
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
 
 
             return $this->$method($request);
