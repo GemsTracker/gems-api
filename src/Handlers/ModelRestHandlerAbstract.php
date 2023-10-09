@@ -229,7 +229,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      *
      * @return string[]
      */
-    protected function getAllowedFilterFields(): array
+    protected function getAllowedFilterFields(): array|null
     {
         return $this->model->getMetaModel()->getItemNames();
     }
