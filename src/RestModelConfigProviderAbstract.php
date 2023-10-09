@@ -4,6 +4,7 @@ namespace Gems\Api;
 
 use Gems\Api\Handlers\ModelRestHandler;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
+use Gems\Api\Middleware\SessionAuthCustomHeaderMiddleware;
 use Gems\Middleware\FlashMessageMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
@@ -68,6 +69,7 @@ abstract class RestModelConfigProviderAbstract
             CsrfMiddleware::class,
             LocaleMiddleware::class,
             ApiAuthenticationMiddleware::class,
+            SessionAuthCustomHeaderMiddleware::class,
             LegacyCurrentUserMiddleware::class,
         ];
     }
