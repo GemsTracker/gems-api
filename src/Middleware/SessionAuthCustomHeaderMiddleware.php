@@ -29,8 +29,7 @@ class SessionAuthCustomHeaderMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-
-        if ($request->hasHeader(static::VUE_CUSTOM_REQUEST_HEADER) && $request->getHeader(static::VUE_CUSTOM_REQUEST_HEADER) == 1) {
+        if ($request->hasHeader(static::VUE_CUSTOM_REQUEST_HEADER) && in_array(1, $request->getHeader(static::VUE_CUSTOM_REQUEST_HEADER))) {
             return $handler->handle($request);
         }
 
