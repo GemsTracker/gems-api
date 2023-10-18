@@ -747,9 +747,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $userId = (int)$request->getAttribute('user_id');
 
-        $this->model->addTransformer(new CreatedChangedByTransformer($userId));
-        $this->model->addTransformer(new ValidateFieldsTransformer($this->model, $this->loader, $userId));
-        $this->model->addTransformer(new DateTransformer());
+        $metaModel = $this->model->getMetaModel();
+        $metaModel->addTransformer(new CreatedChangedByTransformer($userId));
+        $metaModel->addTransformer(new ValidateFieldsTransformer($this->model, $this->loader, $userId));
+        $metaModel->addTransformer(new DateTransformer());
 
         $row = $this->filterColumns($row, true);
 
