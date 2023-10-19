@@ -131,6 +131,8 @@ class ModelApiHelper
         $structureFields = $model->getItemsUsed();
         $structureAttributes = $this->getStructureAttributes();
 
+        $structure = [];
+
         foreach($structureFields as $fieldName) {
             if ($filterAllowedColumns && (!$model->has($fieldName, 'allow_api_load') || $model->get($fieldName, 'allow_api_load') !== true)) {
                 continue;
