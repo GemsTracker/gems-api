@@ -128,7 +128,7 @@ class ModelApiHelper
      */
     public function getStructure(MetaModelInterface $model, bool $useApiNames = true, bool $filterAllowedColumns = true): array
     {
-        $structureFields = $model->getItemsUsed();
+        $structureFields = array_intersect($model->getItemsOrdered(), $model->getItemsUsed());
         $structureAttributes = $this->getStructureAttributes();
 
         $structure = [];
