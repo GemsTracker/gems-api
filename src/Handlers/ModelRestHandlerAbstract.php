@@ -30,6 +30,7 @@ use Mezzio\Helper\UrlHelper;
 use Mezzio\Router\RouteResult;
 use DateTimeInterface;
 use Zalt\Model\Data\DataReaderInterface;
+use Zalt\Model\Data\DataWriterInterface;
 
 abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 {
@@ -144,6 +145,9 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function delete(ServerRequestInterface $request): EmptyResponse
     {
+        if (!$this->model instanceof DataWriterInterface) {
+            return new EmptyResponse(400);
+        }
         $id = $request->getAttribute('id');
         $idField = $this->getIdField();
         if ($id === null || !$idField) {
@@ -741,6 +745,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     public function saveRow(ServerRequestInterface $request, array $row, bool $update=false): ResponseInterface
     {
         if (empty($row)) {
+            return new EmptyResponse(400);
+        }
+
+        if (!$this->model instanceof DataWriterInterface) {
             return new EmptyResponse(400);
         }
 
