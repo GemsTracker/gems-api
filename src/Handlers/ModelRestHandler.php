@@ -76,7 +76,7 @@ class ModelRestHandler extends ModelRestHandlerAbstract
 
     /**
      * Set the name of the model you want to load
-     * @param string|DataReaderInterface namespaced classname, project loader classname or actual class of a model
+     * @param string|DataReaderInterface $modelName namespaced classname, project loader classname or actual class of a model
      */
     public function setModelName(DataReaderInterface|string $modelName): void
     {

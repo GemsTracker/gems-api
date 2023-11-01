@@ -711,7 +711,6 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      *
      *
      * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      * @throws Exception
      */

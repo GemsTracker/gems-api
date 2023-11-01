@@ -254,7 +254,6 @@ abstract class RestModelConfigProviderAbstract
     /**
      * Get all Routed including model routes. Add your projects routes in this function of the configProvider of your project.
      *
-     * @param bool $includeModelRoutes
      * @return array
      */
     public function getRoutes(): array
