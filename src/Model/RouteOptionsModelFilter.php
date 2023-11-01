@@ -40,7 +40,7 @@ class RouteOptionsModelFilter
         if ($save && isset($routeOptions['readonlyFields'])) {
             $readonlyFields = $routeOptions['readonlyFields'];
 
-            $row = static::filterDisallowedFields($row, $disallowedFields);
+            $row = static::filterDisallowedFields($row, $readonlyFields);
         }
 
         return $row;
