@@ -272,7 +272,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     protected function getIdField(): string
     {
         if (!$this->idField) {
-            $keys = $this->model->getKeys();
+            $keys = $this->model->getMetaModel()->getKeys();
             if (isset($keys['id'])) {
                 $this->idField = $keys['id'];
             }
