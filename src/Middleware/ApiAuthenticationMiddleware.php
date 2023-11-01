@@ -74,7 +74,7 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
                 ->withAttribute(static::AUTH_TYPE, 'oauth2');
 
 
-            $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
+            $this->currentUserRepository->setCurrentUserCredentials($loginName, intval($loginOrganization));
 
             $userId = $request->getAttribute(static::CURRENT_USER_ID);
 
