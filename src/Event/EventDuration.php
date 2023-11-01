@@ -8,17 +8,14 @@ trait EventDuration
 {
     protected DateTimeInterface|float $start;
 
-    public function getDurationInSeconds(): int|null
+    public function getDurationInSeconds(): int
     {
         if ($this->start instanceof \DateTimeInterface) {
             $now = new \DateTimeImmutable();
             return $now->getTimestamp() - $this->start->getTimestamp();
         }
-        if (is_numeric($this->start)) {
-            $now = microtime(true);
-            return intval($now - $this->start);
-        }
-        return null;
+        $now = microtime(true);
+        return intval($now - $this->start);
     }
 
     public function setStart(DateTimeInterface|float $start): void
