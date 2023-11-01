@@ -159,7 +159,7 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
         $idField = $this->getIdField();
 
         // No ID field is needed when updating
-        if (!is_array($idField) && array_key_exists($idField, $rowValidators)) {
+        if (array_key_exists($idField, $rowValidators)) {
             unset($rowValidators[$idField]);
         }
 
