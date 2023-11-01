@@ -8,8 +8,11 @@ trait EventDuration
 {
     protected DateTimeInterface|float $start;
 
-    public function getDurationInSeconds(): int
+    public function getDurationInSeconds(): int|null
     {
+        if (!isset($this->start)) {
+            return null;
+        }
         if ($this->start instanceof \DateTimeInterface) {
             $now = new \DateTimeImmutable();
             return $now->getTimestamp() - $this->start->getTimestamp();
