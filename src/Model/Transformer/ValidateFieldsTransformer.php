@@ -76,12 +76,6 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
 
             return $validator;
         }
-        throw new ModelValidationException(
-            sprintf(
-                'Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied %s',
-                gettype($validator)
-            )
-        );
     }
 
     /**
