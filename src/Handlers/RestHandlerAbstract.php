@@ -68,17 +68,14 @@ abstract class RestHandlerAbstract implements RequestHandlerInterface
                 return $this->structure();
             }
         } elseif (method_exists($this, $method)) {
+            $this->method = $method;
             try {
-                $this->method = $method;
+                return $this->$method($request);
             } catch(IncorrectDataException $e) {
-
                 return new JsonResponse([
                     'message' => $e->getMessage(),
                 ], 400);
             }
-
-
-            return $this->$method($request);
         }
 
         return new EmptyResponse(501);
