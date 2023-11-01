@@ -135,12 +135,6 @@ abstract class RestModelConfigProviderAbstract
         }
 
         $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
-        if (is_array($idField) && count($idField) > 1) {
-            $routeParameters = '';
-            foreach($idField as $key=>$field) {
-                $routeParameters .= '/{'.$field.':'.$idRegex[$key].'}';
-            }
-        }
 
         // func_get_args() does not return parameter names
         $settings = array_filter([
