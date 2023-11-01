@@ -20,7 +20,6 @@ use Laminas\Db\Adapter\Adapter;
 use Mezzio\Router\Exception\InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Zalt\Loader\ProjectOverloader;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -31,6 +30,7 @@ use Mezzio\Router\RouteResult;
 use DateTimeInterface;
 use Zalt\Model\Data\DataReaderInterface;
 use Zalt\Model\Data\DataWriterInterface;
+use Zalt\Model\Data\FullDataInterface;
 
 abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 {
@@ -145,7 +145,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      */
     public function delete(ServerRequestInterface $request): EmptyResponse
     {
-        if (!$this->model instanceof DataWriterInterface) {
+        if (!$this->model instanceof FullDataInterface) {
             return new EmptyResponse(400);
         }
         $id = $request->getAttribute('id');
