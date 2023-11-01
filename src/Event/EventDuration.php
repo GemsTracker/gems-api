@@ -16,7 +16,7 @@ trait EventDuration
         }
         if (is_numeric($this->start)) {
             $now = microtime(true);
-            return $now - $this->start;
+            return intval($now - $this->start);
         }
         return null;
     }
