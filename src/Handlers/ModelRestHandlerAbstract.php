@@ -191,13 +191,13 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         $filterOptions = $this->routeOptions;
         $modelAllowFields = $metaModel->getColNames('allow_api_load');
         $modelAllowSaveFields = $metaModel->getColNames('allow_api_save');
-        if ($modelAllowFields && count($modelAllowFields)) {
+        if ($modelAllowFields) {
             if (!isset($filterOptions['allowedFields'])) {
                 $filterOptions['allowedFields'] = [];
             }
             $filterOptions['allowedFields'] = array_merge($modelAllowFields, $filterOptions['allowedFields']);
         }
-        if ($modelAllowSaveFields && count($modelAllowSaveFields)) {
+        if ($modelAllowSaveFields) {
             if (!isset($filterOptions['allowedSaveFields'])) {
                 $filterOptions['allowedSaveFields'] = [];
             }
