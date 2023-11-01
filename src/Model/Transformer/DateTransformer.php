@@ -23,7 +23,7 @@ class DateTransformer extends ModelTransformerAbstract
             }
             $type = $model->get($columnName, 'type');
             if ($type === Model::TYPE_DATETIME || $type === Model::TYPE_DATE) {
-                if ($value instanceof DateTimeInterface || $value === null) {
+                if ($value instanceof DateTimeInterface) {
                     continue;
                 }
 

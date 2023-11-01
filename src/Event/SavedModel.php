@@ -37,11 +37,12 @@ class SavedModel extends ModelEvent
             return array_keys($this->newData);
         }
         $diffValues = [];
+        $metaModel = $this->model->getMetaModel();
         foreach($this->newData as $key=>$newValue) {
             if ($newValue instanceof \DateTimeInterface) {
                 $storageFormat = 'Y-m-d H:i:s';
-                if ($this->model->has($key, 'storageFormat')) {
-                    $storageFormat = $this->model->get($key, 'storageFormat');
+                if ($metaModel->has($key, 'storageFormat')) {
+                    $storageFormat = $metaModel->get($key, 'storageFormat');
                 }
                 $newValue = $newValue->format($storageFormat);
             }

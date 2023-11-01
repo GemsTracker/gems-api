@@ -168,12 +168,12 @@ class ApiDefinitionRepository
         $pathName = $this->getTranslatedPath($route['path']);
 
         $definitionInfo = null;
+        $methodInfo = [];
+
         if ($reflector->hasProperty('definition')) {
             $definitionProperty = $reflector->getProperty('definition');
             if ($definitionProperty->isStatic()) {
                 $definitionInfo = $definitionProperty->getValue();
-
-                $methodInfo = [];
             }
         }
 

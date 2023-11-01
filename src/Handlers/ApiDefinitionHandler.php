@@ -17,14 +17,7 @@ class ApiDefinitionHandler implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $queryParams = $request->getQueryParams();
-
-        $currentRole = 'super';
-        if (isset($queryParams['role'])) {
-            $currentRole = $queryParams['role'];
-        }
-
-        $definition = $this->apiDefinitionRepository->getDefinition($request, $currentRole);
+        $definition = $this->apiDefinitionRepository->getDefinition($request);
         return new JsonResponse($definition, 200);
     }
 }

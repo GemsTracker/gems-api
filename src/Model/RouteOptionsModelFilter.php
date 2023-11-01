@@ -40,7 +40,7 @@ class RouteOptionsModelFilter
         if ($save && isset($routeOptions['readonlyFields'])) {
             $readonlyFields = $routeOptions['readonlyFields'];
 
-            $row = static::filterDisallowedFields($row, $disallowedFields);
+            $row = static::filterDisallowedFields($row, $readonlyFields);
         }
 
         return $row;
@@ -67,6 +67,7 @@ class RouteOptionsModelFilter
 
     protected static function filterDisallowedFields(array $row, array $fields): array
     {
+        $filteredRow = [];
         foreach($row as $key=>$value) {
             if (isset($fields[$key]) && is_array($value)) {
                 foreach($row[$key] as $index=>$subRow) {

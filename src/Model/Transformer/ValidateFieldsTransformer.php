@@ -64,7 +64,6 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
         }
 
         if (is_string($validator)) {
-            $validatorName = $validator;
             if (class_exists($validator)) {
                 return new $validator();
             }
@@ -75,18 +74,8 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
                 $validator = $this->overLoader->create('Validator\\'.$validator);
             }
 
-            if ($validator) {
-                return $validator;
-            } else {
-                throw new ModelValidationException(sprintf('Validator %s not found', $validatorName));
-            }
+            return $validator;
         }
-        throw new ModelValidationException(
-            sprintf(
-                'Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied %s',
-                gettype($validator)
-            )
-        );
     }
 
     /**
@@ -170,7 +159,7 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
         $idField = $this->getIdField();
 
         // No ID field is needed when updating
-        if (!is_array($idField) && array_key_exists($idField, $rowValidators)) {
+        if (array_key_exists($idField, $rowValidators)) {
             unset($rowValidators[$idField]);
         }
 

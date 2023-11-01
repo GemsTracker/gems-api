@@ -135,12 +135,6 @@ abstract class RestModelConfigProviderAbstract
         }
 
         $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
-        if (is_array($idField) && count($idField) > 1) {
-            $routeParameters = '';
-            foreach($idField as $key=>$field) {
-                $routeParameters .= '/{'.$field.':'.$idRegex[$key].'}';
-            }
-        }
 
         // func_get_args() does not return parameter names
         $settings = array_filter([
@@ -254,7 +248,6 @@ abstract class RestModelConfigProviderAbstract
     /**
      * Get all Routed including model routes. Add your projects routes in this function of the configProvider of your project.
      *
-     * @param bool $includeModelRoutes
      * @return array
      */
     public function getRoutes(): array

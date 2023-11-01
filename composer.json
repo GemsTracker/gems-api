@@ -39,6 +39,10 @@
     },
     {
       "type": "git",
+      "url": "https://github.com/MagnaFacta/zalt-laminas-filter.git"
+    },
+    {
+      "type": "git",
       "url": "https://github.com/MagnaFacta/zalt-laminas-validator.git"
     },
     {

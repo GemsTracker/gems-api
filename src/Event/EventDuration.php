@@ -10,15 +10,15 @@ trait EventDuration
 
     public function getDurationInSeconds(): int|null
     {
+        if (!isset($this->start)) {
+            return null;
+        }
         if ($this->start instanceof \DateTimeInterface) {
             $now = new \DateTimeImmutable();
             return $now->getTimestamp() - $this->start->getTimestamp();
         }
-        if (is_numeric($this->start)) {
-            $now = microtime(true);
-            return $now - $this->start;
-        }
-        return null;
+        $now = microtime(true);
+        return intval($now - $this->start);
     }
 
     public function setStart(DateTimeInterface|float $start): void
