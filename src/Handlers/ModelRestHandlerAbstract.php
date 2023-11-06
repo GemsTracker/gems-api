@@ -333,6 +333,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $rows = $this->model->loadPageWithCount($itemCount, $page, $this->itemsPerPage, $filters, $order);
 
+        if ($itemCount === 0) {
+            return new EmptyResponse(204);
+        }
+
         $headers = $this->getPaginationHeaders($request, $itemCount);
 
         $translatedRows = [];
