@@ -4,7 +4,6 @@
 namespace Gems\Api\Handlers;
 
 use Gems\Api\Util\ContentTypeChecker;
-use Gems\Audit\AccesslogRepository;
 use Gems\Api\Event\SavedModel;
 use Gems\Api\Event\SaveFailedModel;
 use Gems\Api\Event\SaveModel;
@@ -15,6 +14,7 @@ use Gems\Api\Model\RouteOptionsModelFilter;
 use Gems\Api\Model\Transformer\CreatedChangedByTransformer;
 use Gems\Api\Model\Transformer\DateTransformer;
 use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
+use Gems\Audit\AuditLog;
 use Gems\Model;
 use Laminas\Db\Adapter\Adapter;
 use Mezzio\Router\Exception\InvalidArgumentException;
@@ -79,14 +79,14 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      *
      * RestControllerAbstract constructor.
      * @param EventDispatcherInterface $eventDispatcher
-     * @param AccesslogRepository $accesslogRepository
+     * @param AuditLog $auditLog
      * @param ProjectOverloader $loader
      * @param UrlHelper $urlHelper
      * @param Adapter $db
      */
     public function __construct(
         protected readonly EventDispatcherInterface $eventDispatcher,
-        protected readonly AccesslogRepository $accesslogRepository,
+        protected readonly AuditLog $auditLog,
         protected readonly ProjectOverloader $loader,
         protected readonly UrlHelper $urlHelper,
         protected readonly ModelApiHelper $modelApiHelper,
@@ -616,7 +616,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             ->withHeader('Access-Control-Allow-Methods', $allow);
     }
 
-    protected function logRequest(ServerRequestInterface $request, ?array $data = null, bool $changed = false): array|null
+    protected function logRequest(ServerRequestInterface $request, ?array $data = null, bool $changed = false): ?int
     {
         $respondentId = null;
         if ($data && isset($this->routeOptions['respondentIdField']) && isset($data[$this->routeOptions['respondentIdField']])) {
@@ -624,10 +624,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         }
 
         if ($changed) {
-            return $this->accesslogRepository->logChange($request, $respondentId);
+            return $this->auditLog->logChange($request, respondentId: $respondentId);
         }
 
-        return $this->accesslogRepository->logRequest($request, null, null, $respondentId);
+        return $this->auditLog->logChange($request, respondentId:  $respondentId);
     }
 
     /**
