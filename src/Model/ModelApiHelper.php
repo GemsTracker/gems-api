@@ -37,7 +37,7 @@ class ModelApiHelper
                     if ($model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
                         $subModel = $model->get($key, 'model');
                         $subRules = ['allowedFields' => $allowedField];
-                        $this->applyAllowedColumnsToModel($subModel, $subRules);
+                        $this->applyAllowedColumnsToModel($subModel->getMetaModel(), $subRules);
                         $model->set($key, 'allow_api_load', true);
                     }
                     continue;
@@ -59,7 +59,7 @@ class ModelApiHelper
                     if ($model->has($key, 'model') && $model->get($key, 'type') === MetaModelInterface::TYPE_CHILD_MODEL) {
                         $subModel = $model->get($key, 'model');
                         $subRules = ['allowedSaveFields' => $allowedSaveField];
-                        $this->applyAllowedColumnsToModel($subModel, $subRules);
+                        $this->applyAllowedColumnsToModel($subModel->getMetaModel(), $subRules);
                     }
                     continue;
                 }
