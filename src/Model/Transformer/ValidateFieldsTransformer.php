@@ -179,11 +179,26 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
             }
 
             foreach($validators as $validator) {
-                if (!$validator->isValid($value, $row)) {
-                    if (!isset($this->errors[$colName])) {
-                        $errors[$colName] = [];
+                if (is_array($value)) {
+                    foreach($value as $key => $subValue) {
+                        if (!$validator->isValid($subValue, $row)) {
+                            if (!isset($this->errors[$colName])) {
+                                $errors[$colName] = [];
+                            }
+                            if (!isset($this->errors[$colName][$key])) {
+                                $errors[$colName][$key] = [];
+                            }
+                            $errors[$colName][$key] += $validator->getMessages();
+                        }
                     }
-                    $errors[$colName] += $validator->getMessages();//array_merge($this->errors[$colName], $validator->getMessages());
+                } else {
+                    if (!$validator->isValid($value, $row)) {
+                        if (!isset($this->errors[$colName])) {
+                            $errors[$colName] = [];
+                        }
+                        $errors[$colName] += $validator->getMessages(
+                        );//array_merge($this->errors[$colName], $validator->getMessages());
+                    }
                 }
             }
         }
