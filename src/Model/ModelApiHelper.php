@@ -7,6 +7,7 @@ use Laminas\Db\Sql\Expression;
 use MUtil\Model\Type\JsonData;
 use Zalt\Model\MetaModel;
 use Zalt\Model\MetaModelInterface;
+use Zalt\Model\MetaModellerInterface;
 
 class ModelApiHelper
 {
@@ -200,8 +201,8 @@ class ModelApiHelper
             }
             if (isset($structure[$fieldLabel], $structure[$fieldLabel]['type']) && $structure[$fieldLabel]['type'] === 'child_model') {
                 $subModel = $model->get($fieldName, 'model');
-                if ($subModel instanceof MetaModelInterface) {
-                    $structure[$fieldLabel]['structure'] = $this->getStructure($subModel, $useApiNames);
+                if ($subModel instanceof MetaModellerInterface) {
+                    $structure[$fieldLabel]['structure'] = $this->getStructure($subModel->getMetaModel(), $useApiNames);
                 }
             }
         }
