@@ -111,7 +111,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     {
         $oldData = [];
         if (method_exists($this->model, 'getOldValues')) {
-            $oldData = $this->model->getOldValues();
+            $oldData = $this->model->getOldValues() ?? [];
         }
 
         $event = new SavedModel($this->model, $newRow, $oldData, $this->requestStart);
