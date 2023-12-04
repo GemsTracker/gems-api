@@ -23,6 +23,7 @@ class ModelApiHelper
         'multiOptions',
         'default',
         'elementClass',
+        'elementOptions',
         'multiOptionSettings',
         'disable',
         'raw',
