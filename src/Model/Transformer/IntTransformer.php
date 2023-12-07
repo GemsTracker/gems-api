@@ -30,7 +30,13 @@ class IntTransformer extends ModelTransformerAbstract
         foreach($data as $key=>$item) {
             foreach($this->fields as $field) {
                 if (isset($item[$field])) {
-                    $data[$key][$field] = (int) $data[$key][$field];
+                    if (is_array($item[$field])) {
+                        foreach($item[$field] as $itemKey => $itemValue) {
+                            $data[$key][$field][$itemKey] = (int)$itemValue;
+                        }
+                    } else {
+                        $data[$key][$field] = (int)$data[$key][$field];
+                    }
                 }
             }
         }
