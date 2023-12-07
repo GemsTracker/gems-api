@@ -5,6 +5,7 @@ namespace Gems\Api;
 use Gems\Api\Handlers\ModelRestHandler;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Api\Middleware\SessionAuthCustomHeaderMiddleware;
+use Gems\Middleware\AclMiddleware;
 use Gems\Middleware\FlashMessageMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
@@ -69,6 +70,7 @@ abstract class RestModelConfigProviderAbstract
             CsrfMiddleware::class,
             LocaleMiddleware::class,
             ApiAuthenticationMiddleware::class,
+            AclMiddleware::class,
             SessionAuthCustomHeaderMiddleware::class,
             LegacyCurrentUserMiddleware::class,
         ];
@@ -81,6 +83,7 @@ abstract class RestModelConfigProviderAbstract
         array $allowedMethods = ['GET'],
         ?array $middleware = null,
         ?array $options = null,
+        string|bool|null $privilege = null,
     ): array
     {
         if ($middleware !== null) {
@@ -94,6 +97,17 @@ abstract class RestModelConfigProviderAbstract
             'middleware' => $handler,
             'allowed_methods' => $allowedMethods,
         ];
+
+        if ($privilege === null) {
+            $privilege = "pr.api.$name";
+        }
+
+        if ($privilege !== null && $privilege !== false) {
+            if ($options === 0) {
+                $options = [];
+            }
+            $options['privilege'] = $privilege;
+        }
 
         if ($options !== null) {
             $route['options'] = $options;
