@@ -103,7 +103,7 @@ abstract class RestModelConfigProviderAbstract
         }
 
         if ($privilege !== null && $privilege !== false) {
-            if ($options === 0) {
+            if ($options === null) {
                 $options = [];
             }
             $options['privilege'] = $privilege;
