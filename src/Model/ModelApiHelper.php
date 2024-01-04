@@ -238,7 +238,9 @@ class ModelApiHelper
             if (is_array($value) && isset($translations[$colName]) && is_array($translations[$colName])) {
                 $translatedRow[$colName] = [];
                 foreach($value as $key=>$subRow) {
-                    $translatedRow[$colName][$key] = $this->translateList($subRow, $translations[$colName]);
+                    if (is_array($subRow)) {
+                        $translatedRow[$colName][$key] = $this->translateList($subRow, $translations[$colName]);
+                    }
                 }
                 continue;
             }
