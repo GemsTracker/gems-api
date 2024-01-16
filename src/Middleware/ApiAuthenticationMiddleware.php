@@ -24,6 +24,10 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
     public const CURRENT_USER_ID = 'currentUserId';
     public const CURRENT_USER_NAME = 'currentUserName';
     public const CURRENT_USER_ORGANIZATION = 'currentUserOrganization';
+
+    public const CURRENT_USER_ROLE = 'user_role';
+
+
     public const AUTH_TYPE = 'auth-type';
 
     public function __construct(
@@ -80,6 +84,12 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
 
             if ($userId !== null) {
                 $this->currentUserRepository->setCurrentUserId($userId);
+            }
+
+            $role = $request->getAttribute(static::CURRENT_USER_ROLE);
+
+            if ($role !== null) {
+                $this->currentUserRepository->setCurrentUserRole($role);
             }
 
             return $request;
