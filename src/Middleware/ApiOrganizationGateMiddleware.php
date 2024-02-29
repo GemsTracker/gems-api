@@ -33,7 +33,7 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
         $method = $request->getMethod();
         if ($method == 'GET') {
             $currentOrganizationId = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ORGANIZATION);
-            $allowedOrganizationIds = $this->organizationRepository->getAllowedOrganizationsFor($currentOrganizationId);
+            $allowedOrganizationIds = array_keys($this->organizationRepository->getAllowedOrganizationsFor($currentOrganizationId));
 
             $filters = $request->getQueryParams();
             $filters = $this->getRouteFilters($filters, $routeOptions, $allowedOrganizationIds);
