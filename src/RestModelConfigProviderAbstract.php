@@ -133,7 +133,7 @@ abstract class RestModelConfigProviderAbstract
         ?array $allowedSaveFields = null,
         string|array|null $patientIdField = null,
         ?string $respondentIdField = null,
-        ?array $multiOranizationField = null,
+        ?string $organizationIdField = null,
         ?array $options = null,
     ): array
     {
@@ -167,7 +167,7 @@ abstract class RestModelConfigProviderAbstract
             'allowedSaveFields' => $allowedSaveFields,
             'patientIdField' => $patientIdField,
             'respondentIdField' => $respondentIdField,
-            'multiOranizationField' => $multiOranizationField,
+            'organizationIdField' => $organizationIdField,
         ]);
         if ($options !== null) {
             $settings = array_merge($settings, $options);
