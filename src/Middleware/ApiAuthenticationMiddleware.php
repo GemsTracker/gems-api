@@ -2,14 +2,12 @@
 
 namespace Gems\Api\Middleware;
 
-use Gems\AuthNew\Adapter\GemsTrackerIdentity;
 use Gems\AuthNew\AuthenticationMiddleware;
 use Gems\AuthNew\AuthenticationServiceBuilder;
 use Gems\AuthTfa\OtpMethodBuilder;
 use Gems\AuthTfa\TfaService;
 use Gems\Legacy\CurrentUserRepository;
 use Gems\OAuth2\Entity\User;
-use Gems\User\UserLoader;
 use Laminas\Diactoros\Response;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;

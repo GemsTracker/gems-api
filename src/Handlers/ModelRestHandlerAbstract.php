@@ -299,10 +299,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * Return a filter that has the current models id field or fields as parameters set.
      *
      * @param string|int|array $id
-     * @param string $idField
+     * @param string|array $idField
      * @return array
      */
-    protected function getIdFilter(array|int|string $id, string $idField): array
+    protected function getIdFilter(array|int|string $id, string|array $idField): array
     {
         if (!is_array($id)) {
             $id = [$id];
