@@ -3,6 +3,7 @@
 
 namespace Gems\Api\Handlers;
 
+use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Api\Util\ContentTypeChecker;
 use Gems\Api\Event\SavedModel;
 use Gems\Api\Event\SaveFailedModel;
@@ -16,6 +17,7 @@ use Gems\Api\Model\Transformer\DateTransformer;
 use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
 use Gems\Audit\AuditLog;
 use Gems\Model;
+use Gems\Repository\OrganizationRepository;
 use Laminas\Db\Adapter\Adapter;
 use Mezzio\Router\Exception\InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
@@ -154,9 +156,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             return new EmptyResponse(404);
         }
 
-        $filter = [
-            $idField => $id,
-        ];
+        $filter = $this->getIdFilter($id, $idField);
 
         if (isset($this->routeOptions['respondent_id_field'])) {
             try {
@@ -238,6 +238,16 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         return $this->model->getMetaModel()->getItemNames();
     }
 
+    protected function getAllowedOrganizationIds(): array
+    {
+        /**
+         * TODO: make OrganizationRepository an injected dependency
+         * @var OrganizationRepository $organizationRepository
+         */
+        $organizationRepository = $this->loader->getContainer()->get(OrganizationRepository::class);
+        return $organizationRepository->getAllowedOrganizationsFor($this->userOrganization);
+    }
+
     /**
      * Get the ID from the request. e.g. a route to /items/5 will return 5
      *
@@ -289,10 +299,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * Return a filter that has the current models id field or fields as parameters set.
      *
      * @param string|int|array $id
-     * @param string|int|array $idField
+     * @param string $idField
      * @return array
      */
-    protected function getIdFilter(mixed $id, mixed $idField): array
+    protected function getIdFilter(array|int|string $id, string $idField): array
     {
         if (!is_array($id)) {
             $id = [$id];
@@ -309,6 +319,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
                 $singleField = $apiNames[$singleField];
             }
             $filter[$singleField] = $id[$key];
+        }
+
+        if (isset($this->routeOptions['organizationIdField'])) {
+            $filter[$this->routeOptions['organizationIdField']] = $this->getAllowedOrganizationIds();
         }
 
         return $filter;
@@ -653,6 +667,13 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         if (empty($parsedBody)) {
             return new EmptyResponse(400);
+        }
+
+        if (isset($this->routeOptions['organizationIdField'], $parsedBody[$this->routeOptions['organizationIdField']])) {
+            $allowedOrganizationIds = $this->getAllowedOrganizationIds();
+            if (!in_array((int) $parsedBody[$this->routeOptions['organizationIdField']], $allowedOrganizationIds)) {
+                return new EmptyResponse(403);
+            }
         }
 
         $event = new SaveModel($this->model);
