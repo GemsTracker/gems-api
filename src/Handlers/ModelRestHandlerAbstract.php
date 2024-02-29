@@ -245,7 +245,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
          * @var OrganizationRepository $organizationRepository
          */
         $organizationRepository = $this->loader->getContainer()->get(OrganizationRepository::class);
-        return $organizationRepository->getAllowedOrganizationsFor($this->userOrganization);
+        return array_keys($organizationRepository->getAllowedOrganizationsFor($this->userOrganization));
     }
 
     /**
@@ -322,7 +322,8 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
         }
 
         if (isset($this->routeOptions['organizationIdField'])) {
-            $filter[$this->routeOptions['organizationIdField']] = $this->getAllowedOrganizationIds();
+            $fieldName = $apiNames[$this->routeOptions['organizationIdField']] ?? $this->routeOptions['organizationIdField'];
+            $filter[$fieldName] = $this->getAllowedOrganizationIds();
         }
 
         return $filter;
