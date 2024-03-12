@@ -3,6 +3,7 @@
 namespace Gems\Api\Middleware;
 
 use Gems\Repository\OrganizationRepository;
+use Laminas\Permissions\Acl\Acl;
 use Mezzio\Router\RouteResult;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,7 +13,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ApiOrganizationGateMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        protected readonly OrganizationRepository $organizationRepository
+        protected readonly OrganizationRepository $organizationRepository,
+        protected readonly Acl $acl,
     )
     {}
 
@@ -26,22 +28,30 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
 
         $routeOptions = $route->getOptions();
         if (!isset($routeOptions['organizationIdField']) || empty($routeOptions['organizationIdField'])) {
-            $response = $handler->handle($request);
-            return $response;
+            return $handler->handle($request);
         }
 
         $method = $request->getMethod();
         if ($method == 'GET') {
-            $currentOrganizationId = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ORGANIZATION);
-            $allowedOrganizationIds = array_keys($this->organizationRepository->getAllowedOrganizationsFor($currentOrganizationId));
+            $allowedOrganizationIds = $this->getAllowedOrganizations($request);
 
             $filters = $request->getQueryParams();
             $filters = $this->getRouteFilters($filters, $routeOptions, $allowedOrganizationIds);
             $request = $request->withQueryParams($filters);
         }
 
-        $response = $handler->handle($request);
-        return $response;
+        return $handler->handle($request);
+    }
+
+    protected function getAllowedOrganizations(ServerRequestInterface $request): array
+    {
+        $userRole = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ROLE);
+        if ($userRole && $this->acl->isAllowed($userRole, 'pr.organization-switch')) {
+            return array_keys($this->organizationRepository->getOrganizations());
+        }
+
+        $currentOrganizationId = $request->getAttribute(ApiAuthenticationMiddleware::CURRENT_USER_ORGANIZATION);
+        return array_keys($this->organizationRepository->getAllowedOrganizationsFor($currentOrganizationId));
     }
 
     protected function getRouteFilters(array $filters, array $routeOptions, array $allowedOrganizationIds): array
