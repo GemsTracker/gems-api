@@ -47,7 +47,10 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
     protected function getRouteFilters(array $filters, array $routeOptions, array $allowedOrganizationIds): array
     {
         // Add allowed organizations to filter by default
-        $filters[$routeOptions['organizationIdField']] = $allowedOrganizationIds;
+        if (!isset($filters[$routeOptions['organizationIdField']])) {
+            $filters[$routeOptions['organizationIdField']] = $allowedOrganizationIds;
+        }
+
         if (isset($filters[$routeOptions['organizationIdField']])) {
             // Verify queried organizations are allowed
             $selectedOrganizationIds = $filters[$routeOptions['organizationIdField']];
@@ -55,11 +58,6 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
                 $selectedOrganizationIds = explode(',', str_replace(['[', ']'], '', $selectedOrganizationIds));
             }
             $filteredOrganizationIds = array_intersect($selectedOrganizationIds, $allowedOrganizationIds);
-            foreach ($selectedOrganizationIds as $organizationId) {
-                if (in_array($organizationId, $allowedOrganizationIds)) {
-                    $filteredOrganizationIds[] = $organizationId;
-                }
-            }
             $filters[$routeOptions['organizationIdField']] = $filteredOrganizationIds;
         }
 
