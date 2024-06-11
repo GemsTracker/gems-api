@@ -156,7 +156,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             return new EmptyResponse(404);
         }
 
-        $filter = $this->getIdFilter($id, $idField);
+        $filter = $this->getIdFilter($id, $idField, $request);
 
         if (isset($this->routeOptions['respondent_id_field'])) {
             try {
@@ -302,7 +302,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
      * @param string|array $idField
      * @return array
      */
-    protected function getIdFilter(array|int|string $id, string|array $idField): array
+    protected function getIdFilter(array|int|string $id, string|array $idField, ServerRequestInterface $request): array
     {
         if (!is_array($id)) {
             $id = [$id];
@@ -323,7 +323,10 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         if (isset($this->routeOptions['organizationIdField'])) {
             $fieldName = $apiNames[$this->routeOptions['organizationIdField']] ?? $this->routeOptions['organizationIdField'];
-            $filter[$fieldName] = $this->getAllowedOrganizationIds();
+            $queryParams = $request->getQueryParams();
+            if (isset($queryParams[$this->routeOptions['organizationIdField']])) {
+                $filter[$fieldName] = $queryParams[$this->routeOptions['organizationIdField']];
+            }
         }
 
         return $filter;
@@ -533,7 +536,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
     {
         $idField = $this->getIdField();
         if ($idField) {
-            $filter = $this->getIdFilter($id, $idField);
+            $filter = $this->getIdFilter($id, $idField, $request);
 
             $row = $this->model->loadFirst($filter);
             $this->logRequest($request, $row);
@@ -728,7 +731,7 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $newRowData = $this->modelApiHelper->translateRow($this->model->getMetaModel(), $parsedBody, true);
 
-        $filter = $this->getIdFilter($id, $idField);
+        $filter = $this->getIdFilter($id, $idField, $request);
 
         $row = $this->model->loadFirst($filter);
 

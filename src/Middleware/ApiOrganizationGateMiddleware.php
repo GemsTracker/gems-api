@@ -32,7 +32,7 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
         }
 
         $method = $request->getMethod();
-        if ($method == 'GET') {
+        if (in_array($method, ['GET', 'DELETE', 'PATCH', 'PUT'])) {
             $allowedOrganizationIds = $this->getAllowedOrganizations($request);
 
             $filters = $request->getQueryParams();
