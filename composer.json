@@ -11,7 +11,6 @@
     "php": ">=8.1",
     "gemstracker/gemstracker": "2.x-dev",
     "gemstracker/gems-oauth2": "dev-main",
-    "magnafacta/zalt-model": "2.x-dev",
     "symfony/event-dispatcher": "^5.4"
   },
   "require-dev": {
