@@ -61,6 +61,11 @@
       "url": "https://github.com/MagnaFacta/zalt-util.git"
     }
   ],
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0.x-dev"
+    }
+  },
   "scripts": {
     "stan": [
       "vendor/bin/phpstan"
