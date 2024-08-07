@@ -10,7 +10,7 @@
   "require": {
     "php": ">=8.1",
     "gemstracker/gemstracker": "2.x-dev",
-    "gemstracker/gems-oauth2": "dev-main",
+    "gemstracker/gems-oauth2": "^1.0.0",
     "symfony/event-dispatcher": "^5.4"
   },
   "require-dev": {
