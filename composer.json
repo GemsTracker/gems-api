@@ -17,7 +17,7 @@
     "phpunit/phpunit": "^9",
     "phpstan/phpstan": "^1.8"
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "prefer-stable": true,
   "repositories": [
     {
