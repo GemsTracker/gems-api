@@ -110,7 +110,7 @@ class ApiAuthenticationMiddleware implements MiddlewareInterface
                     ->withAttribute(AuthenticationMiddleware::CURRENT_IDENTITY_ATTRIBUTE, $authenticationService->getIdentity())
                     ->withAttribute(static::CURRENT_USER_ID, $user->getUserId())
                     ->withAttribute(static::CURRENT_USER_NAME, $user->getLoginName())
-                    ->withAttribute(static::CURRENT_USER_ORGANIZATION, $user->getCurrentOrganizationId())
+                    ->withAttribute(static::CURRENT_USER_ORGANIZATION, $user->getBaseOrganizationId())
                     ->withAttribute(static::CURRENT_USER_ROLE, $user->getRole())
                     ->withAttribute(static::AUTH_TYPE, 'session');
             }
