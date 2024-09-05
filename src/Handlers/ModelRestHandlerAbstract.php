@@ -819,20 +819,26 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
         $idField = $this->getIdField();
 
+
         $routeParams = [];
         if (isset($newRow[$idField])) {
             $routeParams[$idField] = $newRow[$idField];
+        } else {
+            $translations = $this->modelApiHelper->getApiNames($this->model->getMetaModel(), true);
+            if (isset($newRow[$translations[$idField]])) {
+                $routeParams[$idField] = $newRow[$translations[$idField]];
+            }
         }
 
         if (!empty($routeParams)) {
 
             $result = $request->getAttribute(RouteResult::class);
             $routeName = $result->getMatchedRouteName();
-            $baseRoute = str_replace(['.structure', '.get', '.fixed'], '', $routeName);
+            $baseRoute = str_replace(['.structure', '.get', '.fixed', '.post', '.put', '.patch'], '', strtolower($routeName));
 
             $routeParts = explode('.', $baseRoute);
             //array_pop($routeParts);
-            $getRouteName = join('.', $routeParts) . '.get';
+            $getRouteName = join('.', $routeParts) . '.GET';
 
             try {
                 $location = $this->urlHelper->generate($getRouteName, $routeParams);
