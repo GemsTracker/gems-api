@@ -14,6 +14,7 @@ class TestModelRestHandler extends ModelRestHandler
     public function getOne(mixed $id, ServerRequestInterface $request): ResponseInterface
     {
         $idField = $this->getIdField();
+        $filter = [];
         if ($idField) {
             $filter = $this->getIdFilter($id, $idField, $request);
 
