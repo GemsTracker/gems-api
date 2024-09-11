@@ -842,12 +842,12 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
 
             try {
                 $location = $this->urlHelper->generate($getRouteName, $routeParams);
-            } catch(InvalidArgumentException) {
+            } catch(\Exception) {
                 // Give it another go for custom routes
                 $getRouteName = join('.', $routeParts);
                 try {
                     $location = $this->urlHelper->generate($getRouteName, $routeParams);
-                } catch(InvalidArgumentException) {
+                } catch(\Exception) {
                     $location = null;
                 }
             }
