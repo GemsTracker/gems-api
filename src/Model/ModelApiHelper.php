@@ -25,6 +25,7 @@ class ModelApiHelper
         'elementClass',
         'elementOptions',
         'multiOptionSettings',
+        'onChange',
         'disable',
         'raw',
     ];
