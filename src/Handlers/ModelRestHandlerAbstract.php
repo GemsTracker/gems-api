@@ -16,6 +16,7 @@ use Gems\Api\Model\Transformer\CreatedChangedByTransformer;
 use Gems\Api\Model\Transformer\DateTransformer;
 use Gems\Api\Model\Transformer\ValidateFieldsTransformer;
 use Gems\Audit\AuditLog;
+use Gems\Middleware\AuditLogMiddleware;
 use Gems\Model;
 use Gems\Repository\OrganizationRepository;
 use Laminas\Db\Adapter\Adapter;
@@ -641,11 +642,16 @@ abstract class ModelRestHandlerAbstract extends RestHandlerAbstract
             $respondentId = $data[$this->routeOptions['respondentIdField']];
         }
 
-        if ($changed) {
-            return $this->auditLog->logChange($request, respondentId: $respondentId);
+        $newValues = [];
+        if ($changed && $data) {
+            $newValues = $data;
         }
 
-        return $this->auditLog->logChange($request, respondentId:  $respondentId);
+        if ($newValues || $respondentId) {
+            $logId = $request->getAttribute(AuditLogMiddleware::AUDIT_LOG_ID, 0);
+            return $this->auditLog->registerChanges(currentValues: $newValues, respondentId: $respondentId, logId: $logId);
+        }
+        return null;
     }
 
     /**
