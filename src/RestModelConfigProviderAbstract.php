@@ -7,6 +7,7 @@ use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Api\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Api\Middleware\SessionAuthCustomHeaderMiddleware;
 use Gems\Middleware\AclMiddleware;
+use Gems\Middleware\AuditLogMiddleware;
 use Gems\Middleware\FlashMessageMiddleware;
 use Gems\Middleware\LegacyCurrentUserMiddleware;
 use Gems\Middleware\LocaleMiddleware;
@@ -71,6 +72,7 @@ abstract class RestModelConfigProviderAbstract
             CsrfMiddleware::class,
             LocaleMiddleware::class,
             ApiAuthenticationMiddleware::class,
+            AuditLogMiddleware::class,
             AclMiddleware::class,
             ApiOrganizationGateMiddleware::class,
             SessionAuthCustomHeaderMiddleware::class,
