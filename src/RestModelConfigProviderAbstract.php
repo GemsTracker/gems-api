@@ -106,7 +106,7 @@ abstract class RestModelConfigProviderAbstract
             $privilege = "pr.api.$name";
         }
 
-        if ($privilege !== null && $privilege !== false) {
+        if ($privilege) {
             if ($options === null) {
                 $options = [];
             }

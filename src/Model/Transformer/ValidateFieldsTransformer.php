@@ -41,7 +41,7 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
             $keys = $this->model->getMetaModel()->getKeys();
             if (isset($keys['id'])) {
                 $this->idField = $keys['id'];
-            } elseif (is_array($keys) && count($keys) === 1) {
+            } elseif (count($keys) === 1) {
                 $this->idField = reset($keys);
             }
         }
@@ -63,19 +63,17 @@ class ValidateFieldsTransformer extends ModelTransformerAbstract
             return $validator;
         }
 
-        if (is_string($validator)) {
-            if (class_exists($validator)) {
-                return new $validator();
-            }
-
-            if ($options !== null) {
-                $validator = $this->overLoader->create('Validator\\' . $validator, $options);
-            } else {
-                $validator = $this->overLoader->create('Validator\\'.$validator);
-            }
-
-            return $validator;
+        if (class_exists($validator)) {
+            return new $validator();
         }
+
+        if ($options !== null) {
+            $validator = $this->overLoader->create('Validator\\' . $validator, $options);
+        } else {
+            $validator = $this->overLoader->create('Validator\\'.$validator);
+        }
+
+        return $validator;
     }
 
     /**
