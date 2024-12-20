@@ -27,7 +27,12 @@ class ModelRestHandler extends ModelRestHandlerAbstract
             throw new ModelException('No model or model name set');
         }
 
-        $model = $this->loader->create($this->modelName);
+        $container = $this->loader->getContainer();
+        if ($container->has($this->modelName)) {
+            $model = $container->get($this->modelName);
+        } else {
+            $model = $this->loader->create($this->modelName);
+        }
 
         if ($this->applySettings) {
             foreach($this->applySettings as $methodName) {
