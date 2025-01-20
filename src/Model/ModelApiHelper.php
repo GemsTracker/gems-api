@@ -16,6 +16,8 @@ class ModelApiHelper
         'description',
         'required',
         'size',
+        'class',
+        'style',
         'cols',
         'rows',
         'maxlength',
