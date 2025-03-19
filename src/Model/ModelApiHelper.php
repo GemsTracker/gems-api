@@ -119,7 +119,10 @@ class ModelApiHelper
 
         $subModels = $model->getCol('model');
         foreach($subModels as $subModelName=>$subModel) {
-            $apiNames[$subModelName] = $this->getApiSubModelNames($subModel->getMetaModel());
+            $apiSubModelNames = $this->getApiSubModelNames($subModel->getMetaModel());
+            if (count($apiSubModelNames)) {
+                $apiNames[$subModelName] = $apiSubModelNames;
+            }
         }
         return $apiNames;
     }
