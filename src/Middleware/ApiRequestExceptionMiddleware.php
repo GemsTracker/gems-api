@@ -17,7 +17,8 @@ class ApiRequestExceptionMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            $handler->handle($request);
+            $response = $handler->handle($request);
+            return $response;
         } catch (SymfonyValidatorException $e) {
             return new JsonResponse([
                 'error' => 'validation_error',
