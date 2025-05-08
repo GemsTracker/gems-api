@@ -5,6 +5,7 @@ namespace Gems\Api;
 use Gems\Api\Handlers\ModelRestHandler;
 use Gems\Api\Middleware\ApiAuthenticationMiddleware;
 use Gems\Api\Middleware\ApiOrganizationGateMiddleware;
+use Gems\Api\Middleware\ApiRequestExceptionMiddleware;
 use Gems\Api\Middleware\SessionAuthCustomHeaderMiddleware;
 use Gems\Middleware\AclMiddleware;
 use Gems\Middleware\AuditLogMiddleware;
@@ -77,6 +78,7 @@ abstract class RestModelConfigProviderAbstract
             ApiOrganizationGateMiddleware::class,
             SessionAuthCustomHeaderMiddleware::class,
             LegacyCurrentUserMiddleware::class,
+            ApiRequestExceptionMiddleware::class,
         ];
     }
 
