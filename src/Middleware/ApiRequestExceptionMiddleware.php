@@ -27,7 +27,7 @@ class ApiRequestExceptionMiddleware implements MiddlewareInterface
         } catch(MissingConstructorArgumentsException $e) {
             return new JsonResponse([
                 'error' => 'input_error',
-                'message' => sprintf('missing required input variables: %s', join(', ', $e->getMissingConstructorArguments())),
+                'message' => sprintf('Missing required input variables: %s', join(', ', $e->getMissingConstructorArguments())),
             ], 422);
         } catch (SerializerExceptionInterface $e) {
             return new JsonResponse([
