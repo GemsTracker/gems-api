@@ -33,7 +33,9 @@ abstract class RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
-            'routes' => $this->routeGroup([
+            'routes' => $this->routeGroup(
+                'api',
+                [
                 'path' => $this->pathPrefix,
                 'middleware' => $this->getMiddleware(),
             ],
