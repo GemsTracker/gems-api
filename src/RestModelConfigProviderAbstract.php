@@ -37,7 +37,6 @@ abstract class RestModelConfigProviderAbstract
                 'api',
                 [
                 'path' => $this->pathPrefix,
-                'middleware' => $this->getMiddleware(),
             ],
                 $this->getRoutes()
             ),
