@@ -233,10 +233,10 @@ class ModelApiHelper
     {
         $translations = $this->getApiNames($metaModel, $reversed);
 
-        return $this->translateList($row, $translations);
+        return $this->translateList($row, $translations, $metaModel);
     }
 
-    public function translateList(array $row, array $translations): array
+    public function translateList(array $row, array $translations, MetaModelInterface $metaModel): array
     {
         $translatedRow = [];
         foreach($row as $colName=>$value) {
@@ -252,7 +252,11 @@ class ModelApiHelper
             }
 
             if ($value instanceof DateTimeInterface) {
-                $value = $value->format(DateTimeInterface::ATOM);
+                if ($metaModel->get($colName, 'type') === MetaModelInterface::TYPE_DATE) {
+                    $value = $value->format('Y-m-d');
+                } else {
+                    $value = $value->format(DateTimeInterface::ATOM);
+                }
             }
 
             if (isset($translations[$colName]) && is_string($translations[$colName])) {
