@@ -34,7 +34,6 @@ abstract class RestModelConfigProviderAbstract
     {
         return [
             'routes' => $this->routeGroup([
-                'path' => $this->pathPrefix,
                 'middleware' => $this->getMiddleware(),
             ],
                 $this->getRoutes()
@@ -97,7 +96,7 @@ abstract class RestModelConfigProviderAbstract
             $handler = $middleware;
         }
 
-        $path = $this->pathPrefix . '/' . ltrim($path ?? '', '/');
+        $path = $this->pathPrefix . '/' . ltrim($path, '/');
 
         $route = [
             'name' => $name,
