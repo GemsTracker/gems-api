@@ -97,6 +97,8 @@ abstract class RestModelConfigProviderAbstract
             $handler = $middleware;
         }
 
+        $path = $this->pathPrefix . '/' . ltrim($path ?? '', '/');
+
         $route = [
             'name' => $name,
             'path' => $path,
@@ -150,8 +152,15 @@ abstract class RestModelConfigProviderAbstract
         if ($handler === null) {
             $handler = $this->defaultHandler;
         }
+
+        $trimmedEndpoint = trim($endpoint, '/');
+        $endpointPrefix = trim($this->pathPrefix, '/');
+        $fullEndpoint = $endpointPrefix . '/' . $trimmedEndpoint;
+        $trimmedFullEndpoint = strtolower(trim($fullEndpoint, '/'));
+        $cleanEndpointName = strtolower(str_replace(['/'], '.', trim($trimmedFullEndpoint, '/')));
+
         if ($privilege === null) {
-            $privilege = "pr.api.$endpoint";
+            $privilege = "pr.$cleanEndpointName";
         }
 
         $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
@@ -177,14 +186,20 @@ abstract class RestModelConfigProviderAbstract
             $settings = array_merge($settings, $options);
         }
 
+        $privilegeLabel = $trimmedFullEndpoint;
+        if (str_starts_with($privilegeLabel, 'api/')) {
+            $privilegeLabel = substr($privilegeLabel, 4);
+        }
+
         $routes = [];
 
         if (!empty($methods)) {
-            $name = "api.$endpoint.structure";
+            $name = "$cleanEndpointName.structure";
             $settings['privilege'] = $privilege . '.structure';
+            $settings['privilegeLabel'] = "API: $privilegeLabel -> /structure";
             $routes[$name] = [
                 'name' => $name,
-                'path' => '/' . $endpoint . '/structure',
+                'path' => '/' . $trimmedFullEndpoint . '/structure',
                 'middleware' => $handler,
                 'options' => $settings,
                 'allowed_methods' => ['GET']
@@ -193,15 +208,15 @@ abstract class RestModelConfigProviderAbstract
 
         foreach($methods as $method) {
             $path = match ($method) {
-                'GET' => '/' . $endpoint . '['.$routeParameters.']',
-                'POST' => '/' . $endpoint,
-                'PATCH', 'PUT', 'DELETE' => '/' . $endpoint . $routeParameters,
+                'GET' => '/' . $trimmedEndpoint . '['.$routeParameters.']',
+                'POST' => '/' . $trimmedEndpoint,
+                'PATCH', 'PUT', 'DELETE' => '/' . $trimmedEndpoint . $routeParameters,
                 default => null,
             };
-            $name = "api.$endpoint.$method";
+            $name = "$cleanEndpointName.$method";
 
             $settings['privilege'] = "$privilege.$method";
-            $settings['privilegeLabel'] = "API: $endpoint -> $method";
+            $settings['privilegeLabel'] = "API: $privilegeLabel -> $method";
 
             [$methodRoute] = $this->createRoute(
                 name: $name,
