@@ -223,6 +223,7 @@ abstract class RestModelConfigProviderAbstract
                 handler: $handler,
                 allowedMethods: [$method],
                 options: $settings,
+                privilege: $settings['privilege'],
             );
             $routes[$name] = $methodRoute;
         }
