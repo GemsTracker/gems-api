@@ -182,6 +182,7 @@ abstract class RestModelConfigProviderAbstract
         if (!empty($methods)) {
             $name = "api.$endpoint.structure";
             $settings['privilege'] = $privilege . '.structure';
+            $settings['privilegeLabel'] = "API: $endpoint -> structure";
             $routes[$name] = [
                 'name' => $name,
                 'path' => '/' . $endpoint . '/structure',
